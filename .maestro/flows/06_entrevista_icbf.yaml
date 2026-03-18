@@ -1,0 +1,105 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO 06 — Entrevista completa — Rol ICBF / Funcionario (Versión 1)
+#
+# Historia de usuario:
+#   COMO funcionario del ICBF (rolId 3 o 4),
+#   QUIERO realizar una entrevista completa usando la Versión 1 (Madres/Padres),
+#   PARA verificar que el flujo de preguntas, datos demográficos, observaciones
+#   y pantalla de resultados funcionan correctamente para mi rol.
+#
+# Rol cubierto: rolId 3 (ICBF) / rolId 4 (Funcionario ICBF)
+# Versión de entrevista: Versión 1 — Madres, Padres y Cuidadores
+#
+# Para ejecutar de forma aislada:
+#   maestro test .maestro/flows/06_entrevista_icbf.yaml ^
+#     -e ICBF_USER="correo@icbf.gov.co" ^
+#     -e ICBF_PASS="MiClave@2026" ^
+#     -e OPCION_RESPUESTA="Nunca" ^
+#     -e INTERV_GENERO="Masculino" ^
+#     -e INTERV_PAIS="Colombia" ^
+#     -e INTERV_DEP="BOGOTÁ D.C." ^
+#     -e INTERV_MUN="BOGOTÁ D.C."
+#
+# ⚠️  CONFIGURACIÓN OBLIGATORIA antes de ejecutar:
+#     Verificar que OPCION_RESPUESTA e INTERV_GENERO existen en el catálogo
+#     real del servidor (https://modoseguro.catedra.edu.co).
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "06 — Entrevista Completa · Rol ICBF · Versión 1 (Madres/Padres)"
+tags:
+  - entrevista
+  - rol-icbf
+  - version-1
+  - flujo-completo
+
+---
+
+# ── 1. Lanzar app en estado limpio ────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── 2. LOGIN con credenciales ICBF ────────────────────────────────────────────
+- runFlow:
+    file: ../helpers/_login_action.yaml
+    env:
+      USERNAME: "${ICBF_USER}"
+      PASSWORD: "${ICBF_PASS}"
+
+# ══ HOME SCREEN ══════════════════════════════════════════════════════════════
+
+- assertVisible: "BIENVENIDOS"
+- takeScreenshot: "06_icbf_home"
+
+# ── 3. Navegar a Entrevistas ───────────────────────────────────────────────────
+- tapOn: "Formulario"
+- waitForAnimationsToEnd
+
+- assertVisible: "ENTREVISTAS"
+- takeScreenshot: "06_icbf_entrevistas_lista"
+
+# ── 4. Verificar visibilidad de Versión 1 (ICBF debe verla) ──────────────────
+- scrollUntilVisible:
+    element: "Versión 1"
+    direction: DOWN
+    timeout: 5000
+
+- assertVisible: "Versión 1"
+- assertVisible: "Madres, padres"
+- assertNotVisible: "Versión 4"
+- takeScreenshot: "06_icbf_version1_disponible"
+
+# ── 5. Iniciar entrevista Versión 1 ──────────────────────────────────────────
+- tapOn: "Versión 1"
+- waitForAnimationsToEnd
+- takeScreenshot: "06_icbf_version1_tap"
+
+# ── 6. Ejecutar el flujo completo de la entrevista ───────────────────────────
+#
+# Este subflow navega desde InstruccionScreen hasta PasoTresScreen:
+#   Instrucción → Asentimiento → Paso 1 (demografía) → Paso 2 (indicadores)
+#   → Paso Comentario → Paso 3 (resultados)
+#
+- runFlow:
+    file: ../helpers/_realizar_entrevista.yaml
+    env:
+      OPCION_RESPUESTA: "${OPCION_RESPUESTA:-Nunca}"
+      INTERV_GENERO:    "${INTERV_GENERO:-Masculino}"
+      INTERV_ETNIA:     "${INTERV_ETNIA:-No aplica}"
+      INTERV_DISCAP:    "${INTERV_DISCAP:-No aplica}"
+      INTERV_GRADO:     "${INTERV_GRADO:-No aplica}"
+      INTERV_PAIS:      "${INTERV_PAIS:-Colombia}"
+      INTERV_DEP:       "${INTERV_DEP:-BOGOTÁ D.C.}"
+      INTERV_MUN:       "${INTERV_MUN:-BOGOTÁ D.C.}"
+
+# ── 7. Verificaciones finales en PasoTresScreen ───────────────────────────────
+# (Las asserts ya se hacen dentro de _realizar_entrevista, pero en el flujo
+#  principal podemos añadir verificaciones adicionales del rol ICBF)
+- assertVisible: "RESULTADO DE"
+- assertVisible: "Nivel de Riesgo"
+- takeScreenshot: "06_icbf_entrevista_v1_finalizada"
+
+# ── 8. Cerrar sesión y limpiar estado ─────────────────────────────────────────
+- runFlow: ../helpers/_logout_action.yaml
+
+# ✅ Flujo 06 completado: Entrevista ICBF Versión 1 realizada con éxito.

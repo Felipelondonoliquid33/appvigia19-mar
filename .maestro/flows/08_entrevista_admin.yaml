@@ -1,0 +1,189 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO 08 — Entrevistas completas — Rol Admin / Superusuario (Versiones 2 y 3)
+#
+# Historia de usuario:
+#   COMO administrador o superusuario (rolId 1 o 2),
+#   QUIERO realizar entrevistas completas en múltiples versiones,
+#   PARA verificar que el acceso total a todas las versiones funciona
+#   y que los flujos de indicadores, datos y resultados son correctos.
+#
+# Rol cubierto: rolId 1 (Admin) / rolId 2 (Superusuario)
+# Versiones probadas: Versión 2 (Niñas/Niños) y Versión 3 (Funcionarios)
+#
+# Se prueban las versiones 2 y 3 porque:
+#   - La Versión 1 ya fue cubierta en 06_entrevista_icbf.yaml
+#   - La Versión 4 ya fue cubierta en 07_entrevista_agente.yaml
+#   - Admin ve TODAS, así que se verifica la suma de capacidades
+#
+# Para ejecutar de forma aislada:
+#   maestro test .maestro/flows/08_entrevista_admin.yaml ^
+#     -e ADMIN_USER="admin@modoseguro.co" ^
+#     -e ADMIN_PASS="Admin@Seguro1" ^
+#     -e OPCION_RESPUESTA="Nunca" ^
+#     -e INTERV_GENERO="Masculino" ^
+#     -e INTERV_PAIS="Colombia" ^
+#     -e INTERV_DEP="BOGOTÁ D.C." ^
+#     -e INTERV_MUN="BOGOTÁ D.C."
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "08 — Entrevistas Completas · Rol Admin · Versiones 2 y 3"
+tags:
+  - entrevista
+  - rol-admin
+  - version-2
+  - version-3
+  - flujo-completo
+  - acceso-total
+
+---
+
+# ── 1. Lanzar app en estado limpio ────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── 2. LOGIN con credenciales Admin ──────────────────────────────────────────
+- runFlow:
+    file: ../helpers/_login_action.yaml
+    env:
+      USERNAME: "${ADMIN_USER}"
+      PASSWORD: "${ADMIN_PASS}"
+
+# ══ HOME SCREEN ══════════════════════════════════════════════════════════════
+
+- assertVisible: "BIENVENIDOS"
+- takeScreenshot: "08_admin_home"
+
+# ── 3. Navegar a Entrevistas ───────────────────────────────────────────────────
+- tapOn: "Formulario"
+- waitForAnimationsToEnd
+
+- assertVisible: "ENTREVISTAS"
+- takeScreenshot: "08_admin_entrevistas_lista"
+
+# ── 4. Verificar que Admin ve TODAS las versiones (control de acceso total) ────
+- scrollUntilVisible:
+    element: "Versión 1"
+    direction: DOWN
+    timeout: 5000
+- assertVisible: "Versión 1"
+- assertVisible: "Madres, padres"
+
+- scrollUntilVisible:
+    element: "Versión 2"
+    direction: DOWN
+    timeout: 5000
+- assertVisible: "Versión 2"
+- assertVisible: "Niñas, Niños"
+
+- scrollUntilVisible:
+    element: "Versión 3"
+    direction: DOWN
+    timeout: 5000
+- assertVisible: "Versión 3"
+- assertVisible: "Funcionarios"
+
+- scrollUntilVisible:
+    element: "Versión 4"
+    direction: DOWN
+    timeout: 5000
+- assertVisible: "Versión 4"
+- takeScreenshot: "08_admin_todas_versiones_visibles"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ENTREVISTA A: Versión 2 — Niñas, Niños y Adolescentes
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── 5. Scroll al inicio y abrir Versión 2 ────────────────────────────────────
+- swipe:
+    direction: DOWN
+    duration: 500
+- swipe:
+    direction: DOWN
+    duration: 500
+
+- scrollUntilVisible:
+    element: "Versión 2"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn: "Versión 2"
+- waitForAnimationsToEnd
+- takeScreenshot: "08_admin_version2_tap"
+
+# ── 6. Flujo completo de entrevista — Versión 2 ───────────────────────────────
+- runFlow:
+    file: ../helpers/_realizar_entrevista.yaml
+    env:
+      OPCION_RESPUESTA: "${OPCION_RESPUESTA:-Nunca}"
+      INTERV_GENERO:    "${INTERV_GENERO:-Masculino}"
+      INTERV_ETNIA:     "${INTERV_ETNIA:-No aplica}"
+      INTERV_DISCAP:    "${INTERV_DISCAP:-No aplica}"
+      INTERV_GRADO:     "${INTERV_GRADO:-No aplica}"
+      INTERV_PAIS:      "${INTERV_PAIS:-Colombia}"
+      INTERV_DEP:       "${INTERV_DEP:-BOGOTÁ D.C.}"
+      INTERV_MUN:       "${INTERV_MUN:-BOGOTÁ D.C.}"
+
+# Verificar resultados Versión 2
+- assertVisible: "RESULTADO DE"
+- assertVisible: "Nivel de Riesgo"
+- takeScreenshot: "08_admin_entrevista_v2_finalizada"
+
+# ── 7. Cerrar sesión (necesario para obtener estado limpio antes de Version 3) ─
+- runFlow: ../helpers/_logout_action.yaml
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ENTREVISTA B: Versión 3 — Funcionarios ICBF y de Salud
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── 8. Nuevo login como Admin ────────────────────────────────────────────────
+- runFlow:
+    file: ../helpers/_login_action.yaml
+    env:
+      USERNAME: "${ADMIN_USER}"
+      PASSWORD: "${ADMIN_PASS}"
+
+- assertVisible: "BIENVENIDOS"
+
+# ── 9. Navegar nuevamente a Entrevistas ───────────────────────────────────────
+- tapOn: "Formulario"
+- waitForAnimationsToEnd
+
+- assertVisible: "ENTREVISTAS"
+
+# ── 10. Seleccionar Versión 3 ────────────────────────────────────────────────
+- scrollUntilVisible:
+    element: "Versión 3"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn: "Versión 3"
+- waitForAnimationsToEnd
+- takeScreenshot: "08_admin_version3_tap"
+
+# ── 11. Flujo completo de entrevista — Versión 3 ──────────────────────────────
+#
+# Versión 3 es para Funcionarios de ICBF y de Salud.
+# Los indicadores son distintos a las otras versiones.
+#
+- runFlow:
+    file: ../helpers/_realizar_entrevista.yaml
+    env:
+      OPCION_RESPUESTA: "${OPCION_RESPUESTA:-Nunca}"
+      INTERV_GENERO:    "${INTERV_GENERO:-Femenino}"
+      INTERV_ETNIA:     "${INTERV_ETNIA:-No aplica}"
+      INTERV_DISCAP:    "${INTERV_DISCAP:-No aplica}"
+      INTERV_GRADO:     "${INTERV_GRADO:-No aplica}"
+      INTERV_PAIS:      "${INTERV_PAIS:-Colombia}"
+      INTERV_DEP:       "${INTERV_DEP:-BOGOTÁ D.C.}"
+      INTERV_MUN:       "${INTERV_MUN:-BOGOTÁ D.C.}"
+
+# Verificar resultados Versión 3
+- assertVisible: "RESULTADO DE"
+- assertVisible: "Nivel de Riesgo"
+- takeScreenshot: "08_admin_entrevista_v3_finalizada"
+
+# ── 12. Cerrar sesión final ───────────────────────────────────────────────────
+- runFlow: ../helpers/_logout_action.yaml
+
+# ✅ Flujo 08 completado: Admin — Entrevistas V2 y V3 realizadas con éxito.

@@ -1,0 +1,58 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# helper: _login_action.yaml
+#
+# Subflow reutilizable que realiza el login en la app ModoSeguro.
+# Se invoca desde cualquier flujo con:
+#
+#   - runFlow:
+#       file: ../helpers/_login_action.yaml
+#       env:
+#         USERNAME: "correo@ejemplo.com"
+#         PASSWORD: "Abc123@!"
+#
+# La WelcomeScreen redirige sola a Login en ~3 s.
+# Si ya estamos en Login (cold start), todo funciona igual.
+# ─────────────────────────────────────────────────────────────────────────────
+
+appId: com.anonymous.vigiatpapp
+
+---
+
+# Esperar transición de WelcomeScreen → LoginScreen
+- extendedWaitUntil:
+    visible: "INICIAR"
+    timeout: 8000
+
+# Verificar que la pantalla de login cargó correctamente
+- assertVisible: "INICIAR"
+- assertVisible: "Iniciar Sesión"
+
+# Captura del estado inicial de login
+- takeScreenshot: "login_pantalla_inicial"
+
+# Ingresar usuario (placeholder: "Correo Electrónico")
+- tapOn: "Correo Electrónico"
+- clearText
+- inputText: "${USERNAME}"
+
+# Ingresar contraseña
+- tapOn: "Contraseña"
+- clearText
+- inputText: "${PASSWORD}"
+
+# Captura con credenciales escritas
+- takeScreenshot: "login_credenciales_ingresadas"
+
+# Presionar botón de inicio de sesión
+- tapOn: "Iniciar Sesión"
+
+# Esperar a que termine la animación/carga
+- waitForAnimationsToEnd
+
+# La app puede ir a "Terminos" (primera vez) o directamente a "Home"
+# Esperamos la pantalla de Home que es el destino final
+- extendedWaitUntil:
+    visible: "BIENVENIDOS"
+    timeout: 12000
+
+- takeScreenshot: "login_exitoso_home"

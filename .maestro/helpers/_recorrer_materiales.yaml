@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# helper: _recorrer_materiales.yaml
+#
+# Subflow que navega por la pantalla de Materiales de Consulta
+# y verifica las 4 tarjetas visibles (id: 1, 2, 5, 6).
+# Las tarjetas id:3 y id:4 están ocultas por solicitud del cliente.
+#
+# Requiere que la sesión ya esté iniciada (navegación en Home).
+# ─────────────────────────────────────────────────────────────────────────────
+
+appId: com.anonymous.vigiatpapp
+
+---
+
+# Desde Home, tocar la tarjeta de Materiales
+- tapOn: "Materiales"
+- waitForAnimationsToEnd
+
+# Verificar título de la pantalla
+- assertVisible: "MATERIALES DE CONSULTA"
+- takeScreenshot: "materiales_pantalla_principal"
+
+# Verificar tarjeta 1: Antecedentes
+- assertVisible: "Antecedentes"
+- takeScreenshot: "materiales_tarjeta_antecedentes_visible"
+
+# Tap en Antecedentes → verificar que abre y volver
+- tapOn: "Antecedentes"
+- waitForAnimationsToEnd
+- takeScreenshot: "materiales_antecedentes_detalle"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# Scroll para ver tarjeta 2: Conceptos clave
+- scrollUntilVisible:
+    element: "Conceptos"
+    direction: DOWN
+- assertVisible: "Conceptos"
+- takeScreenshot: "materiales_tarjeta_conceptos_visible"
+
+# Tap en Conceptos → verificar que abre y volver  
+- tapOn: "Conceptos"
+- waitForAnimationsToEnd
+- takeScreenshot: "materiales_conceptos_detalle"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# Scroll para ver tarjeta 5: Ruta especializada
+- scrollUntilVisible:
+    element: "Ruta para la atenci"
+    direction: DOWN
+- assertVisible: "Ruta para la atenci"
+- takeScreenshot: "materiales_tarjeta_ruta_visible"
+
+# Scroll para ver tarjeta 6: Restablecimiento
+- scrollUntilVisible:
+    element: "Restablecimiento"
+    direction: DOWN
+- assertVisible: "Restablecimiento"
+- takeScreenshot: "materiales_tarjeta_restablecimiento_visible"
+
+# Volver al Home
+- pressKey: back
+- waitForAnimationsToEnd
+- assertVisible: "BIENVENIDOS"
+- takeScreenshot: "materiales_regreso_home"

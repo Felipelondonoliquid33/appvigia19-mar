@@ -1,0 +1,198 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO 04 — Rol Administrador / Superusuario (rolId: 1 o 2)
+#
+# Historia de usuario:
+#   COMO administrador o superusuario del sistema,
+#   QUIERO verificar que tengo acceso completo a todos los módulos
+#   y a todos los tipos de entrevista disponibles en la plataforma,
+#   PARA confirmar que el rol con más privilegios funciona correctamente.
+#
+# Según la lógica de EntrevistaScreen:
+#   canShow = (rolesPermitidos) => rolesPermitidos.includes(roleId) || roleId === 1 || roleId === 2
+#   → rolId 1 y 2 siempre pasan el filtro, VEN TODAS las entrevistas.
+#
+# Credenciales: variables de entorno ADMIN_USER / ADMIN_PASS
+#
+# Para ejecutar:
+#   maestro test .maestro/flows/04_rol_admin.yaml \
+#     -e ADMIN_USER="admin@modoseguro.co" \
+#     -e ADMIN_PASS="Admin@Seguro1"
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "04 — Recorrido Rol Administrador / Superusuario"
+tags:
+  - rol-admin
+  - completo
+  - privilegiado
+
+---
+
+# ── 1. Lanzar app en estado limpio ────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── 2. LOGIN como Administrador ───────────────────────────────────────────────
+- runFlow:
+    file: ../helpers/_login_action.yaml
+    env:
+      USERNAME: "${ADMIN_USER}"
+      PASSWORD: "${ADMIN_PASS}"
+
+# ══ HOME SCREEN ══════════════════════════════════════════════════════════════
+
+# ── 3. Verificar menú principal completo ─────────────────────────────────────
+- assertVisible: "BIENVENIDOS"
+- assertVisible: "Formulario"
+- assertVisible: "Materiales"
+- assertVisible: "Resultados"
+- assertVisible: "Canales"
+- takeScreenshot: "04_admin_home_completo"
+
+# Scroll para ver el texto institucional al pie del Home
+- swipe:
+    direction: UP
+    duration: 500
+- assertVisible: "OIM"
+- takeScreenshot: "04_admin_home_scroll_pie"
+- swipe:
+    direction: DOWN
+    duration: 400
+
+# ── 4. Verificar footer completo ──────────────────────────────────────────────
+- assertVisible: "Inicio"
+- assertVisible: "Entrevista"
+- assertVisible: "Resultados"
+
+# Navegación por footer: tap en "Entrevista" desde el footer
+- tapOn:
+    text: "Entrevista"
+    index: 1
+- waitForAnimationsToEnd
+- takeScreenshot: "04_admin_footer_entrevista_navegacion"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ══ MÓDULO ENTREVISTAS — ACCESO TOTAL ═══════════════════════════════════════
+
+# ── 5. Navegar al módulo Entrevistas desde el Home ────────────────────────────
+- tapOn: "Formulario"
+- waitForAnimationsToEnd
+
+- assertVisible: "ENTREVISTAS"
+- assertVisible: "Selecciona la versi"
+- takeScreenshot: "04_admin_entrevistas_pantalla"
+
+# ── 6. Admin ve TODAS las versiones: 1, 2, 3 y 4 ────────────────────────────
+- scrollUntilVisible:
+    element: "Versión 1"
+    direction: DOWN
+- assertVisible: "Versión 1"
+- assertVisible: "Madres, padres"
+- takeScreenshot: "04_admin_version1"
+
+- scrollUntilVisible:
+    element: "Versión 2"
+    direction: DOWN
+- assertVisible: "Versión 2"
+- assertVisible: "Niñas, Niños"
+- takeScreenshot: "04_admin_version2"
+
+- scrollUntilVisible:
+    element: "Versión 3"
+    direction: DOWN
+- assertVisible: "Versión 3"
+- assertVisible: "Funcionarios"
+- takeScreenshot: "04_admin_version3"
+
+- scrollUntilVisible:
+    element: "Versión 4"
+    direction: DOWN
+- assertVisible: "Versión 4"
+- assertVisible: "Cuidadores y Padres"
+- takeScreenshot: "04_admin_version4"
+
+# ── 7. Verificar acceso a instrucciones de entrevista ────────────────────────
+# Tap en Versión 1 para verificar se abre instrucciones
+- scrollUntilVisible:
+    element: "Versión 1"
+    direction: UP
+- tapOn: "Versión 1"
+- waitForAnimationsToEnd
+- assertVisible: "Continuar"
+- takeScreenshot: "04_admin_instruccion_v1_ok"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# Tap en Versión 4 para verificar también
+- scrollUntilVisible:
+    element: "Versión 4"
+    direction: DOWN
+- tapOn: "Versión 4"
+- waitForAnimationsToEnd
+- assertVisible: "Continuar"
+- takeScreenshot: "04_admin_instruccion_v4_ok"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# Volver al Home
+- pressKey: back
+- waitForAnimationsToEnd
+- assertVisible: "BIENVENIDOS"
+
+# ══ MÓDULO MATERIALES ════════════════════════════════════════════════════════
+
+# ── 8. Recorrer materiales completo ──────────────────────────────────────────
+- runFlow: ../helpers/_recorrer_materiales.yaml
+
+# ══ MÓDULO LISTADO DE ENTREVISTAS (Footer) ════════════════════════════════════
+
+# ── 9. Verificar módulo Listado de Entrevistas ───────────────────────────────
+- tapOn:
+    text: "Entrevista"
+    index: 1
+- waitForAnimationsToEnd
+- takeScreenshot: "04_admin_listado_entrevistas"
+
+# Scroll en el listado
+- swipe:
+    direction: UP
+    duration: 600
+- takeScreenshot: "04_admin_listado_scroll"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ══ MÓDULO RESULTADOS ════════════════════════════════════════════════════════
+
+# ── 10. Verificar módulo Resultados ──────────────────────────────────────────
+- tapOn:
+    text: "Resultados"
+    index: 1
+- waitForAnimationsToEnd
+- assertVisible: "RESUMEN"
+- takeScreenshot: "04_admin_resultados"
+- swipe:
+    direction: UP
+    duration: 500
+- takeScreenshot: "04_admin_resultados_scroll"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ══ MÓDULO CANALES Y REPORTE ═════════════════════════════════════════════════
+
+# ── 11. Verificar módulo Canales y Reporte ────────────────────────────────────
+- tapOn: "Canales"
+- waitForAnimationsToEnd
+- assertVisible: "CANALES"
+- takeScreenshot: "04_admin_canales"
+- swipe:
+    direction: UP
+    duration: 800
+- assertVisible: "141"
+- takeScreenshot: "04_admin_canales_linea141"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ══ VERIFICACIÓN FINAL ═══════════════════════════════════════════════════════
+- assertVisible: "BIENVENIDOS"
+- takeScreenshot: "04_admin_flujo_completo_ok"

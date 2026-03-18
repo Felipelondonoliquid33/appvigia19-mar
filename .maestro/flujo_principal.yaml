@@ -1,0 +1,181 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO PRINCIPAL — flujo_principal.yaml
+#
+# Orquestador maestro que ejecuta todos los flujos en orden.
+# Cubre el recorrido completo de la app ModoSeguro para los 3 tipos de
+# usuario/rol definidos en la plataforma.
+#
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │  ROLES DE LA APP                                                        │
+# │  ─────────────────────────────────────────────────────────────────────  │
+# │  rolId 1 / 2 → Admin / Superusuario     (ve TODAS las entrevistas)     │
+# │  rolId 3 / 4 → ICBF / Funcionario       (ve Versiones 1, 2 y 3)        │
+# │  rolId     5 → Agente Educativo          (ve Versión 4)                 │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# CÓMO EJECUTAR EL FLUJO COMPLETO (incluyendo entrevistas reales):
+# ─────────────────────────────────────────────────────────────────────────────
+#   maestro test .maestro/flujo_principal.yaml ^
+#     -e ADMIN_USER="admin@modoseguro.co"   ^
+#     -e ADMIN_PASS="Admin@Seguro1"         ^
+#     -e ICBF_USER="icbf@icbf.gov.co"      ^
+#     -e ICBF_PASS="IcbfClave@2026"        ^
+#     -e AGENTE_USER="agente@edu.gov.co"   ^
+#     -e AGENTE_PASS="Agente@Edu1"         ^
+#     -e OPCION_RESPUESTA="Nunca"          ^
+#     -e INTERV_GENERO="Masculino"         ^
+#     -e INTERV_ETNIA="No aplica"          ^
+#     -e INTERV_DISCAP="No aplica"         ^
+#     -e INTERV_GRADO="No aplica"          ^
+#     -e INTERV_PAIS="Colombia"            ^
+#     -e INTERV_DEP="BOGOTÁ D.C."         ^
+#     -e INTERV_MUN="BOGOTÁ D.C."
+#
+# ⚠️  CONFIGURACIÓN CRÍTICA — OPCION_RESPUESTA:
+#     El valor debe coincidir EXACTAMENTE con el texto de una opción real
+#     en el catálogo del servidor (https://modoseguro.catedra.edu.co).
+#     Verificar con el equipo técnico antes de ejecutar el flujo completo.
+#
+# CÓMO EJECUTAR SOLO LOS FLUJOS DE ENTREVISTA:
+# ─────────────────────────────────────────────────────────────────────────────
+#   # Entrevista ICBF (Versión 1):
+#   maestro test .maestro/flows/06_entrevista_icbf.yaml ^
+#     -e ICBF_USER="mi@icbf.gov.co" -e ICBF_PASS="Clave" ^
+#     -e OPCION_RESPUESTA="Nunca" -e INTERV_PAIS="Colombia" ^
+#     -e INTERV_DEP="BOGOTÁ D.C." -e INTERV_MUN="BOGOTÁ D.C."
+#
+#   # Entrevista Agente (Versión 4):
+#   maestro test .maestro/flows/07_entrevista_agente.yaml ^
+#     -e AGENTE_USER="mi@edu.gov.co" -e AGENTE_PASS="Clave" ^
+#     -e OPCION_RESPUESTA="Nunca"
+#
+#   # Entrevistas Admin (Versiones 2 y 3):
+#   maestro test .maestro/flows/08_entrevista_admin.yaml ^
+#     -e ADMIN_USER="admin@modoseguro.co" -e ADMIN_PASS="Clave" ^
+#     -e OPCION_RESPUESTA="Nunca"
+#
+# CÓMO EJECUTAR SOLO RECORRIDO DE ROL (sin entrevista completa):
+# ─────────────────────────────────────────────────────────────────────────────
+#   maestro test .maestro/flows/02_rol_icbf.yaml ^
+#     -e ICBF_USER="correo@icbf.gov.co" -e ICBF_PASS="MiClave@2026"
+#
+# GENERAR REPORTE JUnit:
+# ─────────────────────────────────────────────────────────────────────────────
+#   maestro test .maestro/flujo_principal.yaml --format junit --output reporte.xml
+#
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "FLUJO PRINCIPAL — ModoSeguro Recorrido Completo"
+tags:
+  - regresion
+  - completo
+  - todos-los-roles
+
+---
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 1 — Welcome Screen y transición a Login                          ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- runFlow: flows/01_bienvenida.yaml
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 2 — Recorrido como usuario ICBF / Funcionario (rolId 3 o 4)     ║
+# ║  Verifica: Versiones 1, 2, 3 visibles — Versión 4 NO visible           ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- runFlow:
+    file: flows/02_rol_icbf.yaml
+    env:
+      ICBF_USER: "${ICBF_USER}"
+      ICBF_PASS: "${ICBF_PASS}"
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 3 — Recorrido como Agente Educativo (rolId 5)                   ║
+# ║  Verifica: Solo Versión 4 visible — Versiones 1, 2, 3 NO visibles      ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- runFlow:
+    file: flows/03_rol_agente.yaml
+    env:
+      AGENTE_USER: "${AGENTE_USER}"
+      AGENTE_PASS: "${AGENTE_PASS}"
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 4 — Recorrido como Administrador / Superusuario (rolId 1 o 2)   ║
+# ║  Verifica: TODAS las versiones visibles + acceso a todos los módulos   ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- runFlow:
+    file: flows/04_rol_admin.yaml
+    env:
+      ADMIN_USER: "${ADMIN_USER}"
+      ADMIN_PASS: "${ADMIN_PASS}"
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 5 — Recorrido exhaustivo de Materiales de Consulta              ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- runFlow:
+    file: flows/05_materiales.yaml
+    env:
+      ICBF_USER: "${ICBF_USER}"
+      ICBF_PASS: "${ICBF_PASS}"
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 6 — Entrevista completa · Rol ICBF · Versión 1 (Madres/Padres) ║
+# ║  Navega desde Instrucción hasta la pantalla de Resultados              ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- runFlow:
+    file: flows/06_entrevista_icbf.yaml
+    env:
+      ICBF_USER: "${ICBF_USER}"
+      ICBF_PASS: "${ICBF_PASS}"
+      OPCION_RESPUESTA: "${OPCION_RESPUESTA}"
+      INTERV_GENERO:    "${INTERV_GENERO}"
+      INTERV_ETNIA:     "${INTERV_ETNIA}"
+      INTERV_DISCAP:    "${INTERV_DISCAP}"
+      INTERV_GRADO:     "${INTERV_GRADO}"
+      INTERV_PAIS:      "${INTERV_PAIS}"
+      INTERV_DEP:       "${INTERV_DEP}"
+      INTERV_MUN:       "${INTERV_MUN}"
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 7 — Entrevista completa · Rol Agente · Versión 4 (Cuidadores)  ║
+# ║  Verifica también que Versiones 1–3 NO son visibles para Agente        ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- runFlow:
+    file: flows/07_entrevista_agente.yaml
+    env:
+      AGENTE_USER: "${AGENTE_USER}"
+      AGENTE_PASS: "${AGENTE_PASS}"
+      OPCION_RESPUESTA: "${OPCION_RESPUESTA}"
+      INTERV_GENERO:    "${INTERV_GENERO}"
+      INTERV_ETNIA:     "${INTERV_ETNIA}"
+      INTERV_DISCAP:    "${INTERV_DISCAP}"
+      INTERV_GRADO:     "${INTERV_GRADO}"
+      INTERV_PAIS:      "${INTERV_PAIS}"
+      INTERV_DEP:       "${INTERV_DEP}"
+      INTERV_MUN:       "${INTERV_MUN}"
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 8 — Entrevistas completas · Rol Admin · Versiones 2 y 3         ║
+# ║  Complementa los flujos anteriores con las versiones restantes         ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- runFlow:
+    file: flows/08_entrevista_admin.yaml
+    env:
+      ADMIN_USER: "${ADMIN_USER}"
+      ADMIN_PASS: "${ADMIN_PASS}"
+      OPCION_RESPUESTA: "${OPCION_RESPUESTA}"
+      INTERV_GENERO:    "${INTERV_GENERO}"
+      INTERV_ETNIA:     "${INTERV_ETNIA}"
+      INTERV_DISCAP:    "${INTERV_DISCAP}"
+      INTERV_GRADO:     "${INTERV_GRADO}"
+      INTERV_PAIS:      "${INTERV_PAIS}"
+      INTERV_DEP:       "${INTERV_DEP}"
+      INTERV_MUN:       "${INTERV_MUN}"

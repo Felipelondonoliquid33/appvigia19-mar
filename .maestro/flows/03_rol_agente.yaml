@@ -1,0 +1,117 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO 03 — Rol Agente Educativo (rolId: 5)
+#
+# Historia de usuario:
+#   COMO agente educativo u orientador,
+#   QUIERO iniciar sesión y verificar que únicamente la Versión 4 de
+#   entrevista está disponible para mi perfil,
+#   PARA asegurarme de que la restricción de roles funciona correctamente
+#   y que los materiales educativos son accesibles.
+#
+# Roles cubiertos: rolId 5 (Agente Educativo)
+# Credenciales: variables de entorno AGENTE_USER / AGENTE_PASS
+#
+# Para ejecutar:
+#   maestro test .maestro/flows/03_rol_agente.yaml \
+#     -e AGENTE_USER="agente@correo.com" \
+#     -e AGENTE_PASS="MiClave@123"
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "03 — Recorrido Rol Agente Educativo"
+tags:
+  - rol-agente
+  - completo
+
+---
+
+# ── 1. Lanzar app en estado limpio ────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── 2. LOGIN con credenciales de Agente Educativo ─────────────────────────────
+- runFlow:
+    file: ../helpers/_login_action.yaml
+    env:
+      USERNAME: "${AGENTE_USER}"
+      PASSWORD: "${AGENTE_PASS}"
+
+# ══ HOME SCREEN ══════════════════════════════════════════════════════════════
+
+# ── 3. Verificar menú principal ───────────────────────────────────────────────
+- assertVisible: "BIENVENIDOS"
+- assertVisible: "Formulario"
+- assertVisible: "Materiales"
+- assertVisible: "Resultados"
+- takeScreenshot: "03_agente_home_verificado"
+
+# ── 4. Verificar footer ──────────────────────────────────────────────────────
+- assertVisible: "Inicio"
+- assertVisible: "Entrevista"
+
+# ══ MÓDULO ENTREVISTAS ═══════════════════════════════════════════════════════
+
+# ── 5. Navegar al módulo de Entrevistas ───────────────────────────────────────
+- tapOn: "Formulario"
+- waitForAnimationsToEnd
+
+- assertVisible: "ENTREVISTAS"
+- takeScreenshot: "03_agente_entrevistas_pantalla"
+
+# ── 6. Verificar que el Agente Educativo VE la Versión 4 ─────────────────────
+- scrollUntilVisible:
+    element: "Versión 4"
+    direction: DOWN
+- assertVisible: "Versión 4"
+- assertVisible: "Cuidadores y Padres"
+- takeScreenshot: "03_agente_version4_visible"
+
+# ── 7. Verificar que las versiones 1, 2 y 3 NO están visibles ────────────────
+# (El rol Agente solo tiene acceso a tipo 2 según canShow([5]))
+- assertNotVisible: "Versión 1"
+- assertNotVisible: "Versión 3"
+- takeScreenshot: "03_agente_versiones_restringidas"
+
+# ── 8. Tap en Versión 4 → verificar instrucciones ────────────────────────────
+- tapOn: "Versión 4"
+- waitForAnimationsToEnd
+- takeScreenshot: "03_agente_instruccion_v4"
+- assertVisible: "Continuar"
+
+# Retroceder
+- pressKey: back
+- waitForAnimationsToEnd
+- pressKey: back
+- waitForAnimationsToEnd
+- assertVisible: "BIENVENIDOS"
+
+# ══ MÓDULO MATERIALES ════════════════════════════════════════════════════════
+
+# ── 9. Recorrer materiales ───────────────────────────────────────────────────
+- runFlow: ../helpers/_recorrer_materiales.yaml
+
+# ══ MÓDULO RESULTADOS ════════════════════════════════════════════════════════
+
+# ── 10. Verificar módulo de Resultados accesible ─────────────────────────────
+- tapOn: "Resultados"
+- waitForAnimationsToEnd
+- takeScreenshot: "03_agente_resultados"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ══ MÓDULO CANALES Y REPORTE ═════════════════════════════════════════════════
+
+# ── 11. Verificar módulo Canales ─────────────────────────────────────────────
+- tapOn: "Canales"
+- waitForAnimationsToEnd
+- takeScreenshot: "03_agente_canales"
+- swipe:
+    direction: UP
+    duration: 600
+- takeScreenshot: "03_agente_canales_scroll"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ── 12. Verificación final ───────────────────────────────────────────────────
+- assertVisible: "BIENVENIDOS"
+- takeScreenshot: "03_agente_flujo_completo_ok"

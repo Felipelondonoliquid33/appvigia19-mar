@@ -1,0 +1,58 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO 01 — Pantalla de Bienvenida (WelcomeScreen)
+#
+# Historia de usuario:
+#   COMO usuario que abre la app por primera vez,
+#   QUIERO ver la pantalla de bienvenida con el logo y el mensaje institucional,
+#   PARA confirmar que la app cargó correctamente.
+#
+# Cobertura:
+#   - Lanzamiento limpio de la app
+#   - Texto de bienvenida visible
+#   - Scroll hacia abajo para verificar contenido completo
+#   - Transición automática a Login (sin interacción)
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "01 — Pantalla de Bienvenida"
+tags:
+  - bienvenida
+  - smoke
+
+---
+
+# ── Paso 1: Lanzar la app limpia ──────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── Paso 2: Verificar pantalla de bienvenida ─────────────────────────────────
+# La WelcomeScreen muestra "ModoSeguro a un Clic"
+- extendedWaitUntil:
+    visible: "ModoSeguro"
+    timeout: 10000
+
+- assertVisible: "ModoSeguro a un Clic"
+- takeScreenshot: "01_bienvenida_titulo_visible"
+
+# ── Paso 3: Verificar el mensaje institucional ────────────────────────────────
+- assertVisible: "Identifica, protege"
+- takeScreenshot: "01_bienvenida_mensaje_visible"
+
+# ── Paso 4: Simular scroll hacia abajo para ver contenido completo ────────────
+- swipe:
+    direction: UP
+    duration: 800
+
+- takeScreenshot: "01_bienvenida_scroll_abajo"
+
+# ── Paso 5: Verificar transición automática a Login (~3 s) ───────────────────
+# La WelcomeScreen navega sola a Login al terminar la carga
+- extendedWaitUntil:
+    visible: "INICIAR"
+    timeout: 10000
+
+- assertVisible: "INICIAR"
+- assertVisible: "Iniciar Sesión"
+- assertVisible: "Crear Cuenta"
+- assertVisible: "¿Olvidaste tu contraseña?"
+- takeScreenshot: "01_transicion_login_exitosa"

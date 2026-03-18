@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# helper: _logout_action.yaml
+#
+# Subflow que vuelve a la pantalla de Login desde cualquier punto de la app
+# navegando con el botón atrás del sistema hasta llegar a Login.
+#
+# Se invoca con:
+#   - runFlow: ../helpers/_logout_action.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+
+appId: com.anonymous.vigiatpapp
+
+---
+
+# Volver al menú principal si estamos en una sub-pantalla
+- pressKey: back
+- waitForAnimationsToEnd
+- pressKey: back
+- waitForAnimationsToEnd
+- pressKey: back
+- waitForAnimationsToEnd
+
+# Cerrar la app y relanzar limpia para el siguiente rol
+- stopApp
+- clearState
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "ModoSeguro"
+    timeout: 8000
+
+- takeScreenshot: "logout_welcome_screen"

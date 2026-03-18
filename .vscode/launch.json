@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Expo on Android",
+      "request": "launch",
+      "type": "reactnative",
+      "platform": "android",
+      "expo": true
+    },
+    {
+      "name": "Run Expo on iOS",
+      "request": "launch",
+      "type": "reactnative",
+      "platform": "ios",
+      "expo": true
+    },
+    {
+      "name": "Run Expo Web",
+      "request": "launch",
+      "type": "reactnative",
+      "platform": "web",
+      "expo": true
+    },
+    {
+      "name": "Attach to running Metro/Expo",
+      "request": "attach",
+      "type": "reactnative",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

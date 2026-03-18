@@ -1,0 +1,403 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# helper: _realizar_entrevista.yaml
+#
+# Ejecuta el flujo COMPLETO de una entrevista paso a paso:
+#   InstruccionScreen → AsentimientoScreen → PasoUnoScreen
+#   → PasoDosScreen (loop indicadores) → PasoComentarioScreen → PasoTresScreen
+#
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │  PRERREQUISITO                                                          │
+# │  La app debe estar en InstruccionScreen cuando se invoca este helper.   │
+# │  Es decir, el flujo padre ya navegó a Entrevistas y tapó una versión.   │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# VARIABLES DE ENTORNO (todas opcionales, con defaults):
+# ─────────────────────────────────────────────────────────────────────────────
+#   OPCION_RESPUESTA   — Texto de opción a seleccionar en cada indicador.
+#                        Default sugerido: la primera opción del catálogo.
+#                        ⚠️  CONFIGURAR según los valores reales del catálogo.
+#                        Ejemplos posibles: "Nunca", "No", "0"
+#
+#   INTERV_GENERO      — Nombre exacto del género en el catálogo.
+#                        Default: "Masculino"
+#
+#   INTERV_ETNIA       — Pertenencia étnica. Default: "No aplica"
+#   INTERV_DISCAP      — Discapacidad. Default: "No aplica" 
+#   INTERV_GRADO       — Grado escolar. Default: "No aplica"
+#
+#   INTERV_PAIS        — Nacionalidad. Default: "Colombia"
+#   INTERV_DEP         — Departamento de residencia. Default: "BOGOTÁ D.C."
+#   INTERV_MUN         — Municipio de residencia. Default: "BOGOTÁ D.C."
+#
+# CÓMO INVOCAR:
+# ─────────────────────────────────────────────────────────────────────────────
+#   - runFlow:
+#       file: ../helpers/_realizar_entrevista.yaml
+#       env:
+#         OPCION_RESPUESTA: "Nunca"
+#         INTERV_GENERO:    "Masculino"
+#         INTERV_PAIS:      "Colombia"
+#         INTERV_DEP:       "BOGOTÁ D.C."
+#         INTERV_MUN:       "BOGOTÁ D.C."
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+
+---
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 1 — InstruccionScreen                                            ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+# Esperar a que la pantalla de instrucciones esté lista
+- extendedWaitUntil:
+    visible: "Continuar"
+    timeout: 8000
+
+- assertVisible: "Continuar"
+- takeScreenshot: "entrevista_01_instruccion"
+
+# Hacer scroll para asegurarse de que el botón es visible
+- scrollUntilVisible:
+    element: "Continuar"
+    direction: DOWN
+    timeout: 5000
+
+# Avanzar a la pantalla de asentimiento
+- tapOn: "Continuar"
+- waitForAnimationsToEnd
+
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 2 — AsentimientoScreen                                           ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- extendedWaitUntil:
+    visible: "ASENTIMIENTO"
+    timeout: 8000
+
+- assertVisible: "ASENTIMIENTO"
+- takeScreenshot: "entrevista_02_asentimiento"
+
+# Hacer scroll hasta el botón Aceptar (el texto del consentimiento es largo)
+- scrollUntilVisible:
+    element: "Aceptar"
+    direction: DOWN
+    timeout: 8000
+
+- tapOn: "Aceptar"
+- waitForAnimationsToEnd
+
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 3 — PasoUnoScreen (Datos Demográficos)                          ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+
+- extendedWaitUntil:
+    visible: "Fecha de nacimiento"
+    timeout: 8000
+
+- takeScreenshot: "entrevista_03_paso_uno_inicio"
+
+# ── 3.1 FECHA DE NACIMIENTO ──────────────────────────────────────────────
+# Toca el campo de fecha (muestra "Seleccionar fecha" cuando está vacío)
+# Abre el selector nativo de fecha de Android
+- tapOn: "Seleccionar fecha"
+- waitForAnimationsToEnd
+
+# Confirmar la fecha actual en el selector nativo de Android
+# (El botón puede ser "OK" o "ACEPTAR" dependiendo del idioma del dispositivo)
+- tapOn:
+    text: "OK"
+    optional: true
+- tapOn:
+    text: "ACEPTAR"
+    optional: true
+- waitForAnimationsToEnd
+
+# ── 3.2 GÉNERO — Picker nativo de Android ────────────────────────────────
+# El Picker muestra "Seleccione..." hasta que se elige un valor.
+# Al tocar abre un diálogo nativo con la lista de géneros del catálogo.
+# ⚠️  CONFIGURAR: INTERV_GENERO debe coincidir con un valor real del catálogo.
+- scrollUntilVisible:
+    element: "Género"
+    direction: DOWN
+    timeout: 5000
+
+# Toca el Picker nativo (mostrará el diálogo de selección)
+- tapOn: "Seleccione..."
+- waitForAnimationsToEnd
+- tapOn: "${INTERV_GENERO:-Masculino}"
+- waitForAnimationsToEnd
+
+# ── 3.3 VÍCTIMA DE CONFLICTO — Radio "No" ───────────────────────────────
+# Seleccionar "No" para evitar los campos condicionales de desplazamiento.
+# Al seleccionar "No", el campo "Desplazamiento" se deshabilita automáticamente.
+- scrollUntilVisible:
+    element: "Víctima de conflicto"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "No"
+    below: "Víctima de conflicto"
+- waitForAnimationsToEnd
+
+# ── 3.4 MIGRANTE — Radio "No" ────────────────────────────────────────────
+# Al seleccionar "No", el campo "Es migrante" se deshabilita automáticamente.
+- scrollUntilVisible:
+    element: "Migrante"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "No"
+    below: "Migrante"
+- waitForAnimationsToEnd
+
+# ── 3.5 PERTENENCIA ÉTNICA — GenericPicker (modal) ──────────────────────
+# El botón muestra "Seleccione..." → al tocar abre un modal con lista.
+# El primer elemento del catálogo para esta app es "No aplica".
+# ⚠️  VERIFICAR: INTERV_ETNIA debe existir en el catálogo real.
+- scrollUntilVisible:
+    element: "Pertenencia étnico-campesina"
+    direction: DOWN
+    timeout: 5000
+
+# Tocar el botón del GenericPicker de etnia
+- tapOn:
+    text: "Seleccione..."
+    below: "Pertenencia étnico-campesina"
+- waitForAnimationsToEnd
+
+# Dentro del modal, seleccionar "No aplica"
+- tapOn: "${INTERV_ETNIA:-No aplica}"
+- waitForAnimationsToEnd
+
+# ── 3.6 DISCAPACIDAD — GenericPicker (modal) ─────────────────────────────
+- scrollUntilVisible:
+    element: "Discapacidad"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn:
+    text: "Seleccione..."
+    below: "Discapacidad"
+- waitForAnimationsToEnd
+
+- tapOn: "${INTERV_DISCAP:-No aplica}"
+- waitForAnimationsToEnd
+
+# ── 3.7 ESCOLARIZADO — Radio "No" ────────────────────────────────────────
+# Al seleccionar "No", el campo "Asistencia regular" se deshabilita.
+- scrollUntilVisible:
+    element: "Escolarizado"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "No"
+    below: "Escolarizado"
+- waitForAnimationsToEnd
+
+# ── 3.8 GRADO ESCOLAR — DropDownPicker ───────────────────────────────────
+# El dropdown abre una lista inline con buscador.
+# "No aplica" es el primer ítem del catálogo para este campo.
+- scrollUntilVisible:
+    element: "Grado Escolar"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "Seleccione..."
+    below: "Grado Escolar"
+- waitForAnimationsToEnd
+
+# Buscar y seleccionar "No aplica"
+- tapOn: "${INTERV_GRADO:-No aplica}"
+- waitForAnimationsToEnd
+
+# ── 3.9 NACIONALIDAD — DropDownPicker ────────────────────────────────────
+- scrollUntilVisible:
+    element: "Nacionalidad"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "Seleccione..."
+    below: "Nacionalidad"
+- waitForAnimationsToEnd
+
+- tapOn: "${INTERV_PAIS:-Colombia}"
+- waitForAnimationsToEnd
+
+# ── 3.10 DEPARTAMENTO DE RESIDENCIA — DropDownPicker ─────────────────────
+# ⚠️  IMPORTANTE: El municipio depende del departamento elegido.
+#     Asegúrese de que INTERV_DEP e INTERV_MUN correspondan al mismo territorio.
+- scrollUntilVisible:
+    element: "Departamento de Residencia"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "Seleccione..."
+    below: "Departamento de Residencia"
+- waitForAnimationsToEnd
+
+- tapOn: "${INTERV_DEP:-BOGOTÁ D.C.}"
+- waitForAnimationsToEnd
+
+# ── 3.11 MUNICIPIO DE RESIDENCIA — DropDownPicker ────────────────────────
+# El municipio sólo se habilita después de seleccionar el departamento.
+- scrollUntilVisible:
+    element: "Municipio de Residencia"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "Seleccione..."
+    below: "Municipio de Residencia"
+- waitForAnimationsToEnd
+
+- tapOn: "${INTERV_MUN:-BOGOTÁ D.C.}"
+- waitForAnimationsToEnd
+
+# ── 3.12 ZONA — Radio "Urbano" ────────────────────────────────────────────
+- scrollUntilVisible:
+    element: "Zona"
+    direction: DOWN
+    timeout: 5000
+- tapOn: "Urbano"
+- waitForAnimationsToEnd
+
+- takeScreenshot: "entrevista_03_paso_uno_completo"
+
+# ── 3.13 AVANZAR a PasoDosScreen ─────────────────────────────────────────
+- scrollUntilVisible:
+    element: "Siguiente"
+    direction: DOWN
+    timeout: 5000
+- tapOn: "Siguiente"
+- waitForAnimationsToEnd
+
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 4 — PasoDosScreen (Indicadores — loop de preguntas)             ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+#
+# Cada pregunta muestra opciones de radio con text de opción.
+# La pantalla avanza con "Siguiente" hasta el ÚLTIMO indicador.
+# Al tocar "Siguiente" en el ÚLTIMO indicador → navega a PasoComentario.
+#
+# ⚠️  IMPORTANTE: El texto OPCION_RESPUESTA debe coincidir con alguna opción
+#     real del catálogo de indicadores. Opciones típicas en herramientas ICBF:
+#     "Nunca", "A veces", "Casi siempre", "Siempre"
+#     Verificar con los datos reales del servidor antes de ejecutar.
+#
+# El loop usa times=80 (cubre el máximo esperado de indicadores).
+# Cuando llegamos a PasoComentario dentro del loop:
+#   - tapOn OPCION_RESPUESTA → sigue seleccionando (opcional, no falla)
+#   - tapOn "Siguiente" → NO encontrado en PasoComentario (botón es "Guardar")
+#   - El loop sigue idling hasta completar 80 iteraciones
+# ─────────────────────────────────────────────────────────────────────────────
+
+- extendedWaitUntil:
+    visible: "Siguiente"
+    timeout: 8000
+
+- takeScreenshot: "entrevista_04_paso_dos_inicio"
+
+- repeat:
+    times: 80
+    commands:
+      # Seleccionar la opción de respuesta (solo si hay opciones disponibles)
+      - tapOn:
+          text: "${OPCION_RESPUESTA:-Nunca}"
+          optional: true
+      # Avanzar al siguiente indicador
+      # En el ÚLTIMO indicador esto navega automáticamente a PasoComentario
+      - tapOn:
+          text: "Siguiente"
+          optional: true
+      - waitForAnimationsToEnd
+
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 5 — PasoComentarioScreen (Último indicador + Observaciones)     ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+#
+# Este screen muestra el ÚLTIMO indicador ya contestado (viene de PasoDos)
+# más un campo de observaciones opcional.
+# El botón es "Guardar" (no "Siguiente").
+# Al tocar "Guardar" → modal de confirmación → "Sí, finalizar" → PasoTres.
+# ─────────────────────────────────────────────────────────────────────────────
+
+- extendedWaitUntil:
+    visible: "Guardar"
+    timeout: 10000
+
+- takeScreenshot: "entrevista_05_paso_comentario"
+
+# Verificar que estamos en la pantalla de observaciones
+- assertVisible: "Guardar"
+
+# (Opcional) Agregar una observación de prueba
+- tapOn:
+    text: "Puede indicar una observación"
+    optional: true
+- inputText:
+    text: "Observación de prueba — entrevista automatizada Maestro"
+    optional: true
+
+# Hacer scroll hasta el botón Guardar y tocarlo
+- scrollUntilVisible:
+    element: "Guardar"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn: "Guardar"
+- waitForAnimationsToEnd
+
+# ── 5.1 MODAL DE CONFIRMACIÓN DE FINALIZACIÓN ─────────────────────────────
+# El modal pregunta: "¿Deseas finalizar la entrevista?"
+# Opciones: "Sí, finalizar" | "Volver y revisar"
+- extendedWaitUntil:
+    visible: "Sí, finalizar"
+    timeout: 5000
+
+- assertVisible: "¿Deseas finalizar la entrevista?"
+- takeScreenshot: "entrevista_05_modal_finalizar"
+
+- tapOn: "Sí, finalizar"
+- waitForAnimationsToEnd
+
+
+# ╔═════════════════════════════════════════════════════════════════════════╗
+# ║  FASE 6 — PasoTresScreen (Resultados)                                 ║
+# ╚═════════════════════════════════════════════════════════════════════════╝
+#
+# Muestra el resultado completo de la entrevista:
+# - Nivel de Riesgo (bajo/medio/alto con color de barra)
+# - Puntajes por categoría
+# - Puntuación Total
+# - Recomendaciones
+# - Botón Descargar (genera Excel)
+# ─────────────────────────────────────────────────────────────────────────────
+
+- extendedWaitUntil:
+    visible: "RESULTADO DE"
+    timeout: 15000
+
+# Verificar elementos clave de la pantalla de resultados
+- assertVisible: "RESULTADO DE"
+- assertVisible: "Puntajes por categoría"
+- assertVisible: "Nivel de Riesgo"
+- assertVisible: "Puntuación Total"
+
+- takeScreenshot: "entrevista_06_resultados_nivel_riesgo"
+
+# Hacer scroll para ver las recomendaciones y el botón de descarga
+- scrollUntilVisible:
+    element: "Recomendaciones"
+    direction: DOWN
+    timeout: 5000
+
+- assertVisible: "Recomendaciones"
+- assertVisible: "Descargar"
+
+- takeScreenshot: "entrevista_06_resultados_completos"
+
+# ✅ Entrevista completada exitosamente

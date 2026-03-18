@@ -1,0 +1,123 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO 05 — Recorrido Completo de Materiales de Consulta
+#
+# Historia de usuario:
+#   COMO cualquier usuario autenticado,
+#   QUIERO navegar por todos los materiales educativos disponibles,
+#   PARA verificar que cada módulo de contenido carga correctamente
+#   y que las secciones desactivadas no aparecen.
+#
+# Requiere login previo (usa ICBF_USER / ICBF_PASS por defecto).
+# Se puede cambiar el usuario con -e ICBF_USER y -e ICBF_PASS.
+#
+# Para ejecutar independientemente:
+#   maestro test .maestro/flows/05_materiales.yaml \
+#     -e ICBF_USER="usuario@icbf.gov.co" \
+#     -e ICBF_PASS="MiClave@123"
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "05 — Recorrido Completo de Materiales"
+tags:
+  - materiales
+  - contenido
+
+---
+
+# ── 1. Login ─────────────────────────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+- runFlow:
+    file: ../helpers/_login_action.yaml
+    env:
+      USERNAME: "${ICBF_USER}"
+      PASSWORD: "${ICBF_PASS}"
+
+# ── 2. Ir a Materiales desde el Home ─────────────────────────────────────────
+- tapOn: "Materiales"
+- waitForAnimationsToEnd
+
+- assertVisible: "MATERIALES DE CONSULTA"
+- takeScreenshot: "05_materiales_inicio"
+
+# ── 3. Verificar que las tarjetas OCULTAS no aparecen ────────────────────────
+# id:3 "Ampliación del alcance" y id:4 "Ruta de protección" están desactivadas
+- assertNotVisible: "Ampliaci"
+- assertNotVisible: "Ruta de protecci"
+- takeScreenshot: "05_materiales_ocultos_verificados"
+
+# ──────────────────── TARJETA 1: ANTECEDENTES ─────────────────────────────────
+
+# ── 4. Abrir Antecedentes ────────────────────────────────────────────────────
+- tapOn: "Antecedentes"
+- waitForAnimationsToEnd
+- takeScreenshot: "05_antecedentes_abierto"
+
+# Scroll dentro de la pantalla de Antecedentes
+- swipe:
+    direction: UP
+    duration: 700
+- takeScreenshot: "05_antecedentes_scroll_medio"
+- swipe:
+    direction: UP
+    duration: 700
+- takeScreenshot: "05_antecedentes_scroll_final"
+
+# Volver al menú de materiales
+- pressKey: back
+- waitForAnimationsToEnd
+- assertVisible: "MATERIALES DE CONSULTA"
+
+# ──────────────────── TARJETA 2: CONCEPTOS CLAVE ──────────────────────────────
+
+# ── 5. Abrir Conceptos clave ──────────────────────────────────────────────────
+- tapOn: "Conceptos"
+- waitForAnimationsToEnd
+- takeScreenshot: "05_conceptos_abierto"
+- swipe:
+    direction: UP
+    duration: 700
+- takeScreenshot: "05_conceptos_scroll"
+- pressKey: back
+- waitForAnimationsToEnd
+- assertVisible: "MATERIALES DE CONSULTA"
+
+# ──────────────────── TARJETA 5: RUTA ESPECIALIZADA ──────────────────────────
+
+# ── 6. Abrir Ruta para la atención especializada ──────────────────────────────
+- scrollUntilVisible:
+    element: "Ruta para la atenci"
+    direction: DOWN
+- tapOn: "Ruta para la atenci"
+- waitForAnimationsToEnd
+- takeScreenshot: "05_ruta_especializada_abierto"
+- swipe:
+    direction: UP
+    duration: 700
+- takeScreenshot: "05_ruta_especializada_scroll"
+- pressKey: back
+- waitForAnimationsToEnd
+- assertVisible: "MATERIALES DE CONSULTA"
+
+# ──────────────────── TARJETA 6: RESTABLECIMIENTO ────────────────────────────
+
+# ── 7. Abrir Restablecimiento de derechos ────────────────────────────────────
+- scrollUntilVisible:
+    element: "Restablecimiento"
+    direction: DOWN
+- tapOn: "Restablecimiento"
+- waitForAnimationsToEnd
+- takeScreenshot: "05_restablecimiento_abierto"
+- swipe:
+    direction: UP
+    duration: 700
+- takeScreenshot: "05_restablecimiento_scroll"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ── 8. Verificación final: volver al Home ────────────────────────────────────
+- pressKey: back
+- waitForAnimationsToEnd
+- assertVisible: "BIENVENIDOS"
+- takeScreenshot: "05_materiales_flujo_completo_ok"

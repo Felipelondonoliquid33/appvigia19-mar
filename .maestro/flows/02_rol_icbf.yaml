@@ -1,0 +1,145 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO 02 — Rol ICBF / Funcionario (rolId: 3 o 4)
+#
+# Historia de usuario:
+#   COMO funcionario o contratista del ICBF (rol entrevistador),
+#   QUIERO iniciar sesión, navegar por el menú principal y acceder a
+#   los formularios de entrevista disponibles para mi perfil,
+#   PARA verificar que las versiones 1, 2 y 3 son accesibles y
+#   que la versión 4 (agentes) NO es visible para mi rol.
+#
+# Roles cubiertos: rolId 3 (ICBF) y rolId 4 (ICBF coordinador)
+# Credenciales: variables de entorno ICBF_USER / ICBF_PASS
+#
+# Para ejecutar:
+#   maestro test .maestro/flows/02_rol_icbf.yaml \
+#     -e ICBF_USER="mi_correo@icbf.gov.co" \
+#     -e ICBF_PASS="MiClave@123"
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "02 — Recorrido Rol ICBF / Funcionario"
+tags:
+  - rol-icbf
+  - completo
+
+---
+
+# ── 1. Lanzar app en estado limpio ────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── 2. LOGIN con credenciales ICBF ────────────────────────────────────────────
+- runFlow:
+    file: ../helpers/_login_action.yaml
+    env:
+      USERNAME: "${ICBF_USER}"
+      PASSWORD: "${ICBF_PASS}"
+
+# ══ HOME SCREEN ══════════════════════════════════════════════════════════════
+
+# ── 3. Verificar menú principal ───────────────────────────────────────────────
+- assertVisible: "BIENVENIDOS"
+- assertVisible: "Formulario"
+- assertVisible: "Materiales"
+- assertVisible: "Resultados"
+- assertVisible: "Canales"
+- takeScreenshot: "02_icbf_home_verificado"
+
+# ── 4. Scroll para ver texto institucional al pie ────────────────────────────
+- swipe:
+    direction: UP
+    duration: 600
+- takeScreenshot: "02_icbf_home_scroll"
+- swipe:
+    direction: DOWN
+    duration: 400
+
+# ── 5. Verificar Footer de navegación ────────────────────────────────────────
+- assertVisible: "Inicio"
+- assertVisible: "Entrevista"
+- assertVisible: "Resultados"
+- takeScreenshot: "02_icbf_footer_visible"
+
+# ══ MÓDULO ENTREVISTAS ═══════════════════════════════════════════════════════
+
+# ── 6. Navegar a Entrevistas ──────────────────────────────────────────────────
+- tapOn: "Formulario"
+- waitForAnimationsToEnd
+
+- assertVisible: "ENTREVISTAS"
+- assertVisible: "Selecciona la versi"
+- takeScreenshot: "02_icbf_entrevistas_pantalla"
+
+# ── 7. Verificar que ICBF ve las versiones 1, 2 y 3 ─────────────────────────
+- scrollUntilVisible:
+    element: "Versión 1"
+    direction: DOWN
+- assertVisible: "Versión 1"
+- assertVisible: "Madres, padres"
+- takeScreenshot: "02_icbf_entrevista_version1"
+
+- scrollUntilVisible:
+    element: "Versión 2"
+    direction: DOWN
+- assertVisible: "Versión 2"
+- assertVisible: "Niñas, Niños"
+- takeScreenshot: "02_icbf_entrevista_version2"
+
+- scrollUntilVisible:
+    element: "Versión 3"
+    direction: DOWN
+- assertVisible: "Versión 3"
+- assertVisible: "Funcionarios"
+- takeScreenshot: "02_icbf_entrevista_version3"
+
+# ── 8. Verificar que la Versión 4 (agentes) NO está visible para ICBF ─────────
+- assertNotVisible: "Versión 4"
+- takeScreenshot: "02_icbf_version4_no_visible"
+
+# ── 9. Tap en Versión 1 → verificar pantalla de instrucciones ────────────────
+- tapOn: "Versión 1"
+- waitForAnimationsToEnd
+- takeScreenshot: "02_icbf_instruccion_v1"
+
+# Verificar que hay instrucciones y botón de continuar
+- assertVisible: "Continuar"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ── 10. Volver al Home ────────────────────────────────────────────────────────
+- pressKey: back
+- waitForAnimationsToEnd
+- assertVisible: "BIENVENIDOS"
+
+# ══ MÓDULO MATERIALES ════════════════════════════════════════════════════════
+
+# ── 11. Navegar y recorrer Materiales ────────────────────────────────────────
+- runFlow: ../helpers/_recorrer_materiales.yaml
+
+# ══ MÓDULO RESULTADOS ════════════════════════════════════════════════════════
+
+# ── 12. Navegar al módulo Resultados ─────────────────────────────────────────
+- tapOn: "Resultados"
+- waitForAnimationsToEnd
+- takeScreenshot: "02_icbf_resultados_pantalla"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ══ MÓDULO CANALES Y REPORTE ═════════════════════════════════════════════════
+
+# ── 13. Navegar a Canales y Reporte ──────────────────────────────────────────
+- tapOn: "Canales"
+- waitForAnimationsToEnd
+- takeScreenshot: "02_icbf_canales_pantalla"
+
+- swipe:
+    direction: UP
+    duration: 800
+- takeScreenshot: "02_icbf_canales_scroll"
+- pressKey: back
+- waitForAnimationsToEnd
+
+# ══ VERIFICACIÓN FINAL ═══════════════════════════════════════════════════════
+- assertVisible: "BIENVENIDOS"
+- takeScreenshot: "02_icbf_flujo_completo_ok"

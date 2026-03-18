@@ -1,0 +1,108 @@
+# ═════════════════════════════════════════════════════════════════════════════
+# FLUJO 07 — Entrevista completa — Rol Agente Educativo (Versión 4)
+#
+# Historia de usuario:
+#   COMO agente educativo o cuidador (rolId 5),
+#   QUIERO realizar una entrevista completa usando la Versión 4 (Agentes),
+#   PARA verificar que el flujo de preguntas específico de mi rol funciona,
+#   y que las versiones 1, 2 y 3 NO son accesibles para mí.
+#
+# Rol cubierto: rolId 5 (Agente Educativo / Cuidador)
+# Versión de entrevista: Versión 4 — Agentes Educativos y Cuidadores
+#
+# Para ejecutar de forma aislada:
+#   maestro test .maestro/flows/07_entrevista_agente.yaml ^
+#     -e AGENTE_USER="agente@edu.gov.co" ^
+#     -e AGENTE_PASS="Agente@Edu1" ^
+#     -e OPCION_RESPUESTA="Nunca" ^
+#     -e INTERV_GENERO="Femenino" ^
+#     -e INTERV_PAIS="Colombia" ^
+#     -e INTERV_DEP="BOGOTÁ D.C." ^
+#     -e INTERV_MUN="BOGOTÁ D.C."
+#
+# ⚠️  NOTA DE VERIFICACIÓN DE ACCESOS:
+#     Este flujo verifica explícitamente que las Versiones 1, 2 y 3
+#     NO aparecen en la lista de entrevistas para el rol Agente.
+# ═════════════════════════════════════════════════════════════════════════════
+
+appId: com.anonymous.vigiatpapp
+name: "07 — Entrevista Completa · Rol Agente Educativo · Versión 4 (Cuidadores)"
+tags:
+  - entrevista
+  - rol-agente
+  - version-4
+  - flujo-completo
+  - control-acceso
+
+---
+
+# ── 1. Lanzar app en estado limpio ────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── 2. LOGIN con credenciales Agente ─────────────────────────────────────────
+- runFlow:
+    file: ../helpers/_login_action.yaml
+    env:
+      USERNAME: "${AGENTE_USER}"
+      PASSWORD: "${AGENTE_PASS}"
+
+# ══ HOME SCREEN ══════════════════════════════════════════════════════════════
+
+- assertVisible: "BIENVENIDOS"
+- takeScreenshot: "07_agente_home"
+
+# ── 3. Navegar a Entrevistas ───────────────────────────────────────────────────
+- tapOn: "Formulario"
+- waitForAnimationsToEnd
+
+- assertVisible: "ENTREVISTAS"
+- takeScreenshot: "07_agente_entrevistas_lista"
+
+# ── 4. Verificar control de acceso por rol ────────────────────────────────────
+# Agente Educativo SOLO puede ver la Versión 4.
+# Las versiones 1, 2 y 3 NO deben aparecer.
+- assertNotVisible: "Versión 1"
+- assertNotVisible: "Versión 2"
+- assertNotVisible: "Versión 3"
+- takeScreenshot: "07_agente_versiones_1_2_3_no_visibles"
+
+- scrollUntilVisible:
+    element: "Versión 4"
+    direction: DOWN
+    timeout: 5000
+
+- assertVisible: "Versión 4"
+- takeScreenshot: "07_agente_version4_disponible"
+
+# ── 5. Iniciar entrevista Versión 4 ──────────────────────────────────────────
+- tapOn: "Versión 4"
+- waitForAnimationsToEnd
+- takeScreenshot: "07_agente_version4_tap"
+
+# ── 6. Ejecutar el flujo completo de la entrevista ───────────────────────────
+#
+# Versión 4 es específica para Agentes Educativos y Cuidadores.
+# El catálogo de indicadores es distinto al de Versiones 1-3.
+#
+- runFlow:
+    file: ../helpers/_realizar_entrevista.yaml
+    env:
+      OPCION_RESPUESTA: "${OPCION_RESPUESTA:-Nunca}"
+      INTERV_GENERO:    "${INTERV_GENERO:-Femenino}"
+      INTERV_ETNIA:     "${INTERV_ETNIA:-No aplica}"
+      INTERV_DISCAP:    "${INTERV_DISCAP:-No aplica}"
+      INTERV_GRADO:     "${INTERV_GRADO:-No aplica}"
+      INTERV_PAIS:      "${INTERV_PAIS:-Colombia}"
+      INTERV_DEP:       "${INTERV_DEP:-BOGOTÁ D.C.}"
+      INTERV_MUN:       "${INTERV_MUN:-BOGOTÁ D.C.}"
+
+# ── 7. Verificaciones finales en PasoTresScreen ───────────────────────────────
+- assertVisible: "RESULTADO DE"
+- assertVisible: "Nivel de Riesgo"
+- takeScreenshot: "07_agente_entrevista_v4_finalizada"
+
+# ── 8. Cerrar sesión ──────────────────────────────────────────────────────────
+- runFlow: ../helpers/_logout_action.yaml
+
+# ✅ Flujo 07 completado: Entrevista Agente Educativo Versión 4 realizada con éxito.

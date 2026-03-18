@@ -34,10 +34,24 @@ export default function PasoDosScreen({ navigation, route }) {
   const [cambio, setCambio] = useState(false);
   const [progreso, setProgreso] = useState(detalle.Avance);
   const [currentIndex, setCurrentIndex] = useState(detalle.IndexIndicador);
-  const [indicadorActual, setIndicadorActual] = useState(detalle.Indicadores[detalle.IndexIndicador]);
-  const [respuestaActual, setRespuestaActual] = useState(detalle.Indicadores[detalle.IndexIndicador].Valor);
-  const [radioDeshabilitado, setRadioDeshabilitado] = useState((typeof detalle.Indicadores[detalle.IndexIndicador].Demografico === "string" &&
-   detalle.Indicadores[detalle.IndexIndicador].Demografico.trim() !== "") || Number(diligenciar.completa) === 1);
+  
+  // Guard against null/undefined Indicadores or out-of-bounds IndexIndicador
+  const initialIndicador = detalle.Indicadores && detalle.Indicadores[detalle.IndexIndicador] 
+    ? detalle.Indicadores[detalle.IndexIndicador] 
+    : null;
+
+  const [indicadorActual, setIndicadorActual] = useState(initialIndicador);
+  
+  // Guard against null/undefined inicialIndicador
+  const [respuestaActual, setRespuestaActual] = useState(initialIndicador?.Valor ?? null);
+  
+  const [radioDeshabilitado, setRadioDeshabilitado] = useState(
+    initialIndicador && 
+    typeof initialIndicador.Demografico === "string" &&
+    (initialIndicador.Demografico ?? "").trim() !== "" || 
+    Number(diligenciar.completa) === 1
+  );
+  
   const [esUltimo, setEsUltimo] = useState(detalle.IndexIndicador === detalle.TotalIndicadores - 1);
   const esUltimo2 = false;
   const [botonTexto, setBotonTexto] = useState(esUltimo ? (diligenciar.completa === 1 ? t("stepCommon.next") : t("stepCommon.next")) : t("stepCommon.next"));
@@ -60,8 +74,9 @@ export default function PasoDosScreen({ navigation, route }) {
     indicadorActual.Valor = idOpcion;
   };
 
-  const guardarDetalle = async => {
-    detalle.Indicadores[detalle.currentIndex] = indicadorActual;
+  const guardarDetalle = () => {
+    try {
+    detalle.Indicadores[detalle.IndexIndicador] = indicadorActual;
 
     let contestadas = 0;
     let puntaje = 0;
@@ -86,11 +101,11 @@ export default function PasoDosScreen({ navigation, route }) {
     diligenciar.json = JSON.stringify(detalle);
 
     if (bEsta) {
-      console.log("actualizar");
       actualizarDiligenciar(diligenciar);
     } else {
       insertarDiligenciar(diligenciar);
     }
+    } catch(e) { /* error al guardar */ }
   }
 
    useEffect(() => {
@@ -137,7 +152,7 @@ export default function PasoDosScreen({ navigation, route }) {
       let index = currentIndex - 1;
       setIndicadorActual(detalle.Indicadores[index]);
       setCurrentIndex(index);
-      setRespuestaActual(detalle.Indicadores[index].Valor)
+      setRespuestaActual(detalle.Indicadores[index]?.Valor ?? null)
 
       const demograficoRaw = detalle?.Indicadores?.[index]?.Demografico;
 
@@ -154,13 +169,7 @@ export default function PasoDosScreen({ navigation, route }) {
       // Si aún no existe el indicador (carga async), NO deshabilites
       const hayIndicador = !!detalle?.Indicadores?.[index];
 
-      console.log("completa:", diligenciar?.completa, typeof diligenciar?.completa);
-      console.log("Demografico:", detalle?.Indicadores?.[index]?.Demografico, typeof detalle?.Indicadores?.[index]?.Demografico);
-      console.log("radio:", demograficoTieneTexto, completaEsUno);
-
-
       setRadioDeshabilitado(hayIndicador ? (demograficoTieneTexto || completaEsUno) : false);
-
 
       setEsUltimo(index + 1 == detalle.TotalIndicadores);
       setBotonTexto("Siguiente");
@@ -177,7 +186,7 @@ export default function PasoDosScreen({ navigation, route }) {
       let index = currentIndex + 1;
       setIndicadorActual(detalle.Indicadores[index]);
       setCurrentIndex(index);
-      setRespuestaActual(detalle.Indicadores[index].Valor)
+      setRespuestaActual(detalle.Indicadores[index]?.Valor ?? null)
       detalle.IndexIndicador = index;
       setEsUltimo(index + 1 == detalle.TotalIndicadores);
 
@@ -196,10 +205,6 @@ export default function PasoDosScreen({ navigation, route }) {
 
       // Si aún no existe el indicador (carga async), NO deshabilites
       const hayIndicador = !!detalle?.Indicadores?.[index];
-
-      console.log("completa siguiente:", diligenciar?.completa, typeof diligenciar?.completa);
-      console.log("Demografico siguiente:", detalle?.Indicadores?.[index]?.Demografico, typeof detalle?.Indicadores?.[index]?.Demografico);
-      console.log("radio siguiente:", demograficoTieneTexto, completaEsUno);
 
       setRadioDeshabilitado(hayIndicador ? (demograficoTieneTexto || completaEsUno) : false);
       
@@ -275,6 +280,24 @@ export default function PasoDosScreen({ navigation, route }) {
     });
   };
 
+  if (!indicadorActual) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+           <TouchableOpacity style={styles.headerIconLeft} onPress={() => navigation.goBack()}>
+              <Image
+                source={require("../../assets/iconos/retorceder.png")}
+                style={{ width: RelativeSize(25), height: RelativeSize(25) }}
+              />
+            </TouchableOpacity>
+        </View>
+        <View style={[styles.content, {alignItems: 'center', paddingTop: 100}]}>
+            <Text style={{color: 'white', fontSize: 18}}>Cargando pregunta...</Text>
+            {/* If stuck here, it likely means detalle.Indicadores is empty or index is wrong */}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <InactivityProvider onTimeout={onTimeout}>
@@ -325,26 +348,23 @@ export default function PasoDosScreen({ navigation, route }) {
                 {indicadorActual.Categoria}
               </Text>
 
+              {indicadorActual.Dirigida ? (
+                <Text style={styles.tituloPregunta}>{indicadorActual.Dirigida}</Text>
+              ) : null}
+
               <Text style={styles.tituloDos}>
-                <Text style={{ fontFamily: PersonFontSize.bold }}>Pregunta:</Text>
-                <Text style={{ fontFamily: PersonFontSize.regular }}> {indicadorActual.Pregunta}</Text>
+                <Text style={{ fontFamily: PersonFontSize.bold }}>Pregunta: </Text>
+                <Text style={{ fontFamily: PersonFontSize.regular }}>{indicadorActual.Pregunta}</Text>
               </Text>
 
-              {indicadorActual.Nota && indicadorActual.Nota.trim() !== "" && (
-                <Text style={styles.tituloNota}>
-                  <Text style={{ fontFamily: PersonFontSize.bold }}>NOTA:</Text>
-                  <Text style={{ fontFamily: PersonFontSize.regular }}> {indicadorActual.Nota}</Text>
-                </Text>
-              )}
-
               <Text style={styles.tituloTres}>
-                <Text style={{ fontFamily: PersonFontSize.bold }}>Indicador:</Text>
-                <Text style={{ fontFamily: PersonFontSize.regular }}> {indicadorActual.Indicador}</Text>
+                <Text style={{ fontFamily: PersonFontSize.bold }}>Indicador: </Text>
+                <Text style={{ fontFamily: PersonFontSize.regular }}>{indicadorActual.Indicador}</Text>
               </Text>
 
               {/* Opciones como radio buttons */}
               <View style={{ marginTop: 10 }}>
-                {indicadorActual.Opciones.map((opcion) => {
+                {(indicadorActual.Opciones || []).map((opcion) => {
                   const selected = respuestaActual === opcion.Valor;
                   return (
                     <TouchableOpacity
@@ -654,6 +674,23 @@ const styles = StyleSheet.create({
     fontSize: PersonFontSize.small,
     marginBottom: RelativeSize(8),
     marginTop: RelativeSize(5),
+  },
+  tituloPregunta: {
+    backgroundColor: "#fff0f7",
+    color: "#b5006a",
+    textAlign: "center",
+    fontFamily: PersonFontSize.bold,
+    fontSize: PersonFontSize.small,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    paddingHorizontal: RelativeSize(14),
+    paddingVertical: RelativeSize(10),
+    borderRadius: RelativeSize(12),
+    borderWidth: 1.5,
+    borderColor: "#EC008C",
+    marginTop: RelativeSize(4),
+    marginBottom: RelativeSize(14),
   },
   tituloTres: {
     color: "#000000",
