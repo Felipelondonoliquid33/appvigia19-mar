@@ -1,0 +1,16 @@
+node_modules/
+.expo/
+android/
+ios/
+dist/
+web-build/
+*.jks
+*.p12
+*.key
+*.mobileprovision
+*.zip
+*.docx
+*.bak
+INFORME_*.md
+TECHNICAL_*.md
+CHANGELOG_*.md
