@@ -1,0 +1,314 @@
+# =============================================================================
+# HISTORIAS DE USUARIO — ROL 3: PROFESIONAL DE CAMPO
+# Aplicación: ModoSeguro - VigiatpApp
+# Proyecto:   Educa Digital / OIM / ICBF
+# Fecha:      2026-03-19
+# =============================================================================
+
+meta:
+  proyecto: "ModoSeguro – VigiatpApp"
+  version_app: "2026.03"
+  fecha_generacion: "2026-03-19"
+  rol_id: 3
+  rol_nombre: "Profesional de Campo"
+  autor: "GitHub Copilot – Educa Digital"
+
+rol:
+  nombre: "Profesional de Campo"
+  descripcion: >
+    El Profesional de Campo es el usuario que aplica entrevistas directamente
+    en el territorio. Accede a 3 de los 4 tipos de entrevista: puede evaluar
+    a madres/padres/cuidadores (V1), niñas/niños/adolescentes (V2) y funcionarios
+    públicos (V3). NO tiene acceso a entrevistas de Agentes Externos (V4).
+    Solo puede ver sus propias entrevistas en el historial (no las de otros colegas).
+    Generalmente corresponde a psicólogos, trabajadores sociales o educadores del programa.
+  nivel_superusuario: false
+  tipos_entrevista_permitidos:
+    - id: 4
+      nombre: "Versión 1 — Madres, padres y cuidadores"
+    - id: 3
+      nombre: "Versión 2 — Niñas, Niños y Adolescentes"
+    - id: 1
+      nombre: "Versión 3 — Funcionarios Públicos"
+  tipos_entrevista_bloqueados:
+    - id: 2
+      nombre: "Versión 4 — Agentes Externos"
+      razon: "Exclusiva para Rol 5 (Agente Externo). Este rol no tiene autorización."
+  restricciones:
+    - "NO puede acceder a la entrevista de Agentes Externos (Versión 4)"
+    - "Solo puede ver sus propias entrevistas en el historial"
+    - "No puede ver estadísticas de otros usuarios"
+
+epicas:
+  - id: "EP-01"
+    nombre: "Autenticación y Trabajo en Campo"
+  - id: "EP-02"
+    nombre: "Panel Principal (Dashboard)"
+  - id: "EP-03"
+    nombre: "Aplicación de Entrevistas Autorizadas"
+  - id: "EP-04"
+    nombre: "Gestión de Entrevistas Propias"
+  - id: "EP-05"
+    nombre: "Materiales de Apoyo para Campo"
+  - id: "EP-06"
+    nombre: "Resultados de Mis Entrevistas"
+
+historias:
+
+  # ── EP-01 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL3-001"
+    epica: "EP-01"
+    titulo: "Iniciar sesión antes de una jornada de campo"
+    pantalla: "LoginScreen"
+    narrativa:
+      como: "Profesional de Campo que inicia su jornada"
+      quiero: "autenticarme con mis credenciales institucionales"
+      para: "acceder a los instrumentos de evaluación que me corresponden y empezar a registrar entrevistas"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Tengo credenciales válidas de Profesional de Campo (rolId=3)"
+        cuando: "Ingreso correo y contraseña"
+        entonces: "La app me autentica correctamente y navega al Dashboard"
+      - dado: "Hay internet disponible"
+        cuando: "Inicio sesión"
+        entonces: "La aplicación sincroniza mis entrevistas pendientes de envío automáticamente"
+      - dado: "No hay internet pero ya inicié sesión en este dispositivo antes"
+        cuando: "Ingreso mis credenciales"
+        entonces: "La app me permite entrar en modo offline usando datos locales"
+    casos_prueba: ["TC-GEN-001~006"]
+    notas: >
+      En jornadas de campo en zonas rurales sin conectividad, el modo offline
+      es esencial. Los datos se sincronizan cuando haya internet.
+
+  # ── EP-02 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL3-002"
+    epica: "EP-02"
+    titulo: "Acceder al Dashboard y navegar mis secciones disponibles"
+    pantalla: "HomeScreen"
+    narrativa:
+      como: "Profesional de Campo autenticado"
+      quiero: "ver el panel principal con las opciones disponibles para mi rol"
+      para: "navegar eficientemente entre las funciones que me corresponden"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Inicié sesión correctamente"
+        cuando: "Se carga HomeScreen"
+        entonces: >
+          Veo los 4 accesos del Dashboard: Formulario de Entrevista, Materiales,
+          Resultados y Canales y reporte
+      - dado: "Toco Formulario de Entrevista"
+        cuando: "Navego a EntrevistaScreen"
+        entonces: "Veo las 3 versiones autorizadas para mi rol (NO veo la Versión 4)"
+    casos_prueba: ["TC-HOME-3-001"]
+    notas: "El Dashboard es idéntico para todos los roles; la diferencia está en EntrevistaScreen."
+
+  # ── EP-03 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL3-003"
+    epica: "EP-03"
+    titulo: "Verificar que solo veo mis entrevistas autorizadas"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Profesional de Campo en la selección de entrevistas"
+      quiero: "ver solo las versiones de entrevista que estoy autorizado a aplicar"
+      para: "trabajar dentro de mi ámbito de competencia y evitar errores de selección"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a EntrevistaScreen"
+        cuando: "Se cargan las tarjetas disponibles"
+        entonces: >
+          Veo las tarjetas de Versión 1 (Padres/Cuidadores), Versión 2 (NNA)
+          y Versión 3 (Funcionarios). La Versión 4 (Agentes Externos) NO aparece.
+      - dado: "Intento acceder a la Versión 4 por algún medio"
+        cuando: "El sistema evalúa mis permisos (canShow)"
+        entonces: "El sistema bloquea el acceso automáticamente"
+    casos_prueba: ["TC-ROL3-001", "TC-ROL3-002", "TC-ROL3-003", "TC-ROL3-004",
+                   "TC-ENT-3-001", "TC-ENT-3-002", "TC-ENT-3-003", "TC-ENT-3-004"]
+    notas: >
+      canShow([3,4]) = TRUE para Versiones 1 y 2 (tipos 4 y 3).
+      canShow([3,4]) = TRUE para Versión 3 (tipo 1).
+      canShow([5]) = FALSE para Versión 4 (tipo 2) si rolId=3.
+
+  - id: "US-ROL3-004"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista completa a una Niña, Niño o Adolescente"
+    pantalla: "PasoUnoScreen → PasoDosScreen → PasoComentarioScreen → PasoTresScreen"
+    narrativa:
+      como: "Profesional de Campo visitando una familia"
+      quiero: >
+        aplicar la entrevista de NNA (Versión 2) haciendo el flujo completo:
+        datos demográficos → preguntas del instrumento → observaciones → resultados
+      para: "evaluar los factores de riesgo digital del menor y activar las rutas de atención necesarias"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Seleccioné Versión 2 y el NNA aceptó el asentimiento"
+        cuando: "Estoy en PasoUno"
+        entonces: "Puedo registrar todos los datos demográficos (fecha nacimiento, género, zona, etc.)"
+      - dado: "Completé PasoUno y avanzo"
+        cuando: "Estoy en PasosDos"
+        entonces: "Respondo todas las preguntas del instrumento una por una con barra de progreso visible"
+      - dado: "Terminé todas las preguntas"
+        cuando: "Llego a PasoComentario"
+        entonces: "Puedo escribir observaciones sobre redes sociales y confirmar la finalización"
+      - dado: "Confirmo la finalización"
+        cuando: "Navego a PasoTres"
+        entonces: "Veo puntajes por categoría, nivel de riesgo (Mínimo/Bajo/Significativo) y recomendaciones"
+    casos_prueba: []
+    notas: >
+      El flujo completo es: EntrevistaScreen → InstruccionScreen → AsentimientoScreen →
+      PasoUnoScreen → PasoDosScreen → PasoComentarioScreen → PasoTresScreen.
+
+  - id: "US-ROL3-005"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista a Madre, Padre o Cuidador (Versión 1)"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Profesional de Campo en visita familiar"
+      quiero: "aplicar la Versión 1 al cuidador del NNA entrevistado"
+      para: "complementar la evaluación con la perspectiva del entorno protector del menor"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Terminé la entrevista al NNA y el cuidador está presente"
+        cuando: "Selecciono Versión 1 en EntrevistaScreen"
+        entonces: "Inicio el proceso de entrevista al cuidador con su propio formulario"
+    casos_prueba: ["TC-ROL3-003"]
+    notas: "La Versión 1 evalúa supervisión digital, conocimiento de riesgos y capacidad protectora."
+
+  - id: "US-ROL3-006"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista a un Funcionario Público (Versión 3)"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Profesional de Campo en visita a colegio u entidad pública"
+      quiero: "aplicar la entrevista de Funcionarios Públicos (Versión 3) a docentes o directivos"
+      para: "evaluar la capacidad institucional de identificar y atender situaciones de ESDI"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en visita a una institución educativa"
+        cuando: "Selecciono Versión 3 — Funcionarios Públicos"
+        entonces: "Inicio el proceso con el instrumento de evaluación institucional"
+    casos_prueba: ["TC-ROL3-001"]
+    notas: "Evalúa conocimiento, protocolos, detección de señales de alerta y coordinación interinstitucional."
+
+  # ── EP-04 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL3-007"
+    epica: "EP-04"
+    titulo: "Consultar solo mis propias entrevistas en el historial"
+    pantalla: "ListadoEntrevistasScreen"
+    narrativa:
+      como: "Profesional de Campo revisando su actividad"
+      quiero: "ver únicamente el listado de entrevistas que yo he realizado"
+      para: "hacer seguimiento a mis casos sin mezclar el trabajo con el de mis colegas"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo al historial de entrevistas"
+        cuando: "Se carga el listado"
+        entonces: >
+          Solo veo las entrevistas asociadas a mi ID de usuario.
+          No puedo ver las entrevistas de otros profesionales.
+      - dado: "Busco por ID o fecha"
+        cuando: "Uso el buscador o filtro de calendario"
+        entonces: "Los resultados se filtran correctamente dentro de mis propias entrevistas"
+    casos_prueba: ["TC-LISTADO-001", "TC-LISTADO-002", "TC-LISTADO-003"]
+    notas: "El filtrado por usuario se hace automáticamente con el idUsuario de la sesión activa."
+
+  - id: "US-ROL3-008"
+    epica: "EP-04"
+    titulo: "Eliminar una entrevista pendiente incorrecta"
+    pantalla: "ListadoEntrevistasScreen"
+    narrativa:
+      como: "Profesional de Campo que registró datos erróneos"
+      quiero: "eliminar una entrevista que está pendiente de completar"
+      para: "depurar mi historial y evitar tener registros incompletos o incorrectos"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Hay una entrevista con estado Pendiente en mi historial"
+        cuando: "Toco ⋮ y selecciono Eliminar y Salir"
+        entonces: >
+          La entrevista pendiente se elimina de la base de datos local
+          y soy redirigido al Dashboard
+      - dado: "La entrevista tiene estado Completa"
+        cuando: "Abro el menú contextual ⋮"
+        entonces: "La opción Eliminar no está disponible para entrevistas completadas"
+    casos_prueba: []
+    notas: "Solo las entrevistas con estado Pendiente (completa=0) pueden eliminarse."
+
+  # ── EP-06 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL3-009"
+    epica: "EP-06"
+    titulo: "Consultar los resultados de mis entrevistas completadas"
+    pantalla: "ResumenScreen / PasoTresScreen"
+    narrativa:
+      como: "Profesional de Campo haciendo seguimiento de casos"
+      quiero: "ver el resumen estadístico de mis entrevistas y los resultados individuales"
+      para: "priorizar los casos de mayor riesgo y planificar acciones de seguimiento"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a la pantalla de Resultados"
+        cuando: "Se carga ResumenScreen"
+        entonces: "Veo mis estadísticas: entrevistas completadas, pendientes, distribución por nivel de riesgo"
+      - dado: "Necesito ver los detalles de un caso"
+        cuando: "Voy al historial y selecciono Ver Resultados"
+        entonces: "Veo los puntajes, nivel de riesgo y recomendaciones de ese participante"
+    casos_prueba: []
+    notas: "Los resultados incluyen siempre recomendaciones específicas para activar rutas de atención."
+
+  # ── EP-05 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL3-010"
+    epica: "EP-05"
+    titulo: "Compartir materiales preventivos con familias durante la visita"
+    pantalla: "MaterialesConsultaScreen"
+    narrativa:
+      como: "Profesional de Campo en terreno"
+      quiero: "acceder a los materiales educativos y compartir información preventiva con las familias"
+      para: "fortalecer las capacidades de protección de los entornos familiares del NNA"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en la sección de Materiales"
+        cuando: "Cargo el catálogo"
+        entonces: "Veo todos los recursos disponibles: conceptos, ampliaciones, rutas de atención"
+    casos_prueba: []
+    notas: "Los materiales están disponibles sin conexión si ya se descargaron previamente."
+
+escenarios_casos_uso:
+  - id: "UC-ROL3-001"
+    titulo: "Jornada de campo: entrevistar NNA y cuidador en visita domiciliaria"
+    actor: "Profesional de Campo (rolId: 3)"
+    precondicion: "Usuario autenticado. Puede estar sin internet (zona rural)."
+    flujo_principal:
+      - paso: 1
+        accion: "Abre la app e inicia sesión (puede ser offline)"
+        resultado: "Accede al Dashboard con sus herramientas de trabajo"
+      - paso: 2
+        accion: "Toca Formulario de Entrevista → selecciona Versión 2 (NNA)"
+        resultado: "Navega a instrucciones de la entrevista NNA"
+      - paso: 3
+        accion: "Lee instrucciones → Continuar → NNA acepta asentimiento"
+        resultado: "Se crea el registro de entrevista. Inicia PasoUno"
+      - paso: 4
+        accion: "Completa datos demográficos del NNA (edad, género, zona, etc.)"
+        resultado: "Datos guardados localmente. Avanza a PasosDos"
+      - paso: 5
+        accion: "Responde 15 preguntas del instrumento (progreso visible)"
+        resultado: "Respuestas guardadas en tiempo real en SQLite local"
+      - paso: 6
+        accion: "Escribe observaciones sobre redes sociales usadas, confirma finalización"
+        resultado: "Entrevista marcada Completa. Puntajes calculados. Ve resultados"
+      - paso: 7
+        accion: "Regresa a EntrevistaScreen → selecciona Versión 1 (Padres/Cuidadores)"
+        resultado: "Inicia nueva entrevista con el cuidador del NNA"
+      - paso: 8
+        accion: "Completa la entrevista del cuidador"
+        resultado: "Segunda entrevista completada para la misma unidad familiar"
+    postcondicion: >
+      2 entrevistas registradas localmente. Cuando haya internet,
+      se sincronizan automáticamente con el servidor.

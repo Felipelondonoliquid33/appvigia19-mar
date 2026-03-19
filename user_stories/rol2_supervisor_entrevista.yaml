@@ -1,0 +1,263 @@
+# =============================================================================
+# ESCENARIO DE ENTREVISTA COMPLETA — ROL 2: SUPERVISOR
+# Tipo de entrevista: Versión 1 — Madres, Padres y Cuidadores (tipo DB: 4)
+# Aplicación: ModoSeguro - VigiatpApp
+# Fecha: 2026-03-19
+# =============================================================================
+
+meta:
+  rol_id: 2
+  rol_nombre: "Supervisor"
+  tipo_entrevista: 4
+  version_entrevista: "Versión 1 — Madres, Padres y Cuidadores"
+  descripcion_uso: >
+    El Supervisor aplica la Versión 1 para evaluar a la madre o cuidador de un NNA
+    previamente identificado en situación de riesgo. Este escenario complementa
+    la evaluación del NNA aplicando el instrumento al entorno familiar protector.
+
+sesion:
+  id_entrevista: "2202503191845"
+  fecha_registro: "2026-03-19 18:45:00"
+  aplicada_por:
+    id_usuario: 25
+    nombre: "Luz Marina Torres Vega"
+    rol: "Supervisor"
+    entidad: "Coordinación Regional Antioquia"
+  estado: "Completa"
+  enviada_servidor: true
+
+# =============================================================================
+# PASO 1: DATOS DEMOGRÁFICOS (PasoUnoScreen)
+# Nota: El cuidador o madre/padre también pasa por el formulario demográfico.
+# =============================================================================
+paso_uno_demograficos:
+  id: "2202503191845"
+  fecha_nacimiento: "1985-03-22"
+  edad_calculada: 40
+  genero: "Femenino"
+  zona: "Urbano"
+  victima_conflicto: "No"
+  desplazamiento: null
+  migrante: "No"
+  tipo_migracion: null
+  etnia: "Mestiza"
+  discapacidad: "No aplica"
+  escolarizado: "Sí"
+  asistencia_regular: null
+  grado: "Bachillerato completo"
+  nacionalidad: "Colombiana"
+  departamento: "Antioquia"
+  municipio: "Bello"
+
+indicadores_demograficos_calculados:
+  - indicador: "edad"
+    valor: 3
+    logica: "Cuidadora en rango de edad de evaluación → valor 3"
+  - indicador: "indigena"
+    valor: 0
+    logica: "No registra pertenencia étnica → valor 0"
+  - indicador: "migracion"
+    valor: 0
+    logica: "No es migrante → valor 0"
+  - indicador: "desplazamineto"
+    valor: 0
+    logica: "No víctima de desplazamiento → valor 0"
+  - indicador: "educacionregular"
+    valor: 3
+    logica: "Con escolaridad → valor 3"
+  - indicador: "impedimento"
+    valor: 0
+    logica: "Sin discapacidad → valor 0"
+
+# =============================================================================
+# PASO 2: PREGUNTAS DEL INSTRUMENTO
+# =============================================================================
+paso_dos_indicadores:
+
+  categoria_1:
+    nombre: "Supervisión del Uso de Tecnología"
+    color: "#1A5276"
+    preguntas:
+
+      - num: 1
+        pregunta: "¿Supervisa usted el uso que hace el NNA a su cargo de dispositivos digitales e internet?"
+        indicador: "Supervisión activa del uso de tecnología por parte del cuidador"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "Supervisión constante con reglas claras y revisiones periódicas"
+            valor: 0
+          - texto: "Supervisión ocasional, sin normas definidas"
+            valor: 1
+          - texto: "No supervisa el uso del NNA en internet"
+            valor: 3
+        respuesta_seleccionada: "No supervisa el uso del NNA en internet"
+        valor: 3
+        justificacion: "Trabaja jornada completa. Llega a casa cuando el NNA ya está durmiendo."
+
+      - num: 2
+        pregunta: "¿Conoce las aplicaciones, redes sociales y plataformas que utiliza el NNA?"
+        indicador: "Conocimiento de plataformas digitales usadas por el NNA"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "Conoce todas las aplicaciones y plataformas que usa el NNA"
+            valor: 0
+          - texto: "Conoce algunas pero no todas las plataformas"
+            valor: 1
+          - texto: "Desconoce qué aplicaciones y plataformas usa el NNA"
+            valor: 3
+        respuesta_seleccionada: "Desconoce qué aplicaciones y plataformas usa el NNA"
+        valor: 3
+        justificacion: "Sabe que usa el celular mucho pero no sabe las aplicaciones específicas."
+
+      - num: 3
+        pregunta: "¿Existen reglas claras en el hogar sobre el uso responsable del internet y los dispositivos?"
+        indicador: "Reglas del hogar sobre uso de internet"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "Existen reglas claras y se cumplen con seguimiento"
+            valor: 0
+          - texto: "Hay algunas reglas pero raramente se cumplen"
+            valor: 1
+          - texto: "No existen reglas para el uso de internet en el hogar"
+            valor: 3
+        respuesta_seleccionada: "No existen reglas para el uso de internet en el hogar"
+        valor: 3
+        justificacion: "Admite que nunca ha puesto límites de tiempo ni de contenido al uso del celular."
+
+  categoria_2:
+    nombre: "Conocimiento sobre Riesgos Digitales"
+    color: "#641E16"
+    preguntas:
+
+      - num: 4
+        pregunta: "¿Usted conoce qué es la Explotación Sexual de NNA en Entornos Digitales (ESDI)?"
+        indicador: "Nivel de conocimiento sobre ESDI del cuidador"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "Conoce claramente el concepto y los riesgos"
+            valor: 0
+          - texto: "Tiene un conocimiento básico del tema"
+            valor: 1
+          - texto: "No conoce el concepto de ESDI"
+            valor: 3
+        respuesta_seleccionada: "No conoce el concepto de ESDI"
+        valor: 3
+        justificacion: "Nunca había escuchado esta sigla. Desconoce que internet puede ser un entorno de riesgo."
+
+      - num: 5
+        pregunta: "¿Sabe usted identificar señales de que un NNA podría estar siendo víctima de acoso o explotación en internet?"
+        indicador: "Reconocimiento de señales de alerta en el NNA"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "Identifica claramente las señales de alerta"
+            valor: 0
+          - texto: "Identifica algunas señales pero no todas"
+            valor: 1
+          - texto: "No sabe cuáles son las señales de alerta"
+            valor: 3
+        respuesta_seleccionada: "No sabe cuáles son las señales de alerta"
+        valor: 3
+        justificacion: "Nota que la niña está más callada y pasa más tiempo en el cuarto, pero no lo relaciona con riesgo."
+
+      - num: 6
+        pregunta: "¿El NNA le ha contado sobre situaciones incómodas o extrañas que hayan ocurrido en internet?"
+        indicador: "Comunicación del NNA sobre riesgos digitales con el cuidador"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "El NNA comunica abiertamente cualquier situación incómoda"
+            valor: 0
+          - texto: "A veces le comenta algo pero no siempre"
+            valor: 1
+          - texto: "El NNA nunca comenta sobre lo que hace o vive en internet"
+            valor: 3
+        respuesta_seleccionada: "El NNA nunca comenta sobre lo que hace o vive en internet"
+        valor: 3
+        justificacion: "La relación es distante por el trabajo. Dice que hay poca comunicación con la hija."
+
+  categoria_3:
+    nombre: "Capacidad de Respuesta y Protección"
+    color: "#1E8449"
+    preguntas:
+
+      - num: 7
+        pregunta: "¿Sabe usted a qué entidades acudir si sospecha que el NNA está siendo víctima de explotación sexual digital?"
+        indicador: "Conocimiento de rutas de atención para casos de ESDI"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "Conoce las entidades y rutas y las utilizaría"
+            valor: 0
+          - texto: "Conoce algunas entidades pero no sabe cómo activar la ruta"
+            valor: 1
+          - texto: "No sabe a quién acudir ni cómo denunciar"
+            valor: 3
+        respuesta_seleccionada: "No sabe a quién acudir ni cómo denunciar"
+        valor: 3
+        justificacion: "Menciona la Policía pero desconoce la Línea 141, ICBF y comisarías de familia."
+
+      - num: 8
+        pregunta: "¿Ha conversado con el NNA sobre los riesgos del internet y las redes sociales?"
+        indicador: "Educación en seguridad digital desde el hogar"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "Conversaciones frecuentes y abiertas sobre el tema"
+            valor: 0
+          - texto: "Han tenido pocas conversaciones al respecto"
+            valor: 1
+          - texto: "Nunca ha hablado sobre riesgos del internet con el NNA"
+            valor: 3
+        respuesta_seleccionada: "Nunca ha hablado sobre riesgos del internet con el NNA"
+        valor: 3
+        justificacion: "Reconoce que nunca abordó el tema. No sabe cómo hacerlo."
+
+      - num: 9
+        pregunta: "¿Cuenta usted con el apoyo de redes familiares, comunitarias o institucionales para la protección del NNA?"
+        indicador: "Redes de apoyo disponibles para la protección del NNA"
+        dirigida_a: "Madre, padre o cuidador/a"
+        opciones:
+          - texto: "Cuenta con redes de apoyo activas (familia, vecinos, institución)"
+            valor: 0
+          - texto: "Apoyo limitado o intermitente"
+            valor: 1
+          - texto: "Sin redes de apoyo disponibles"
+            valor: 3
+        respuesta_seleccionada: "Apoyo limitado o intermitente"
+        valor: 1
+        justificacion: "Tiene una hermana que ayuda ocasionalmente pero no hay una red estable de apoyo."
+
+paso_comentario:
+  observaciones: >
+    La madre trabaja en jornada completa como empleada doméstica y llega tarde a casa.
+    La NNA pasa las tardes y noches sola con el celular. No existe ningún tipo de supervisión
+    digital, reglas de uso ni comunicación abierta sobre riesgos de internet.
+    La madre desconoce completamente los riesgos de ESDI. Muestra disposición para aprender
+    y fortalecer el vínculo con su hija. Se recomienda intervención prioritaria en habilidades
+    parentales digitales y acompañamiento psicosocial para la díada madre-hija.
+    Redes sociales del NNA: TikTok, Instagram y Discord. La madre no conocía estas plataformas.
+
+paso_tres_resultados:
+  puntaje_total: 28
+
+  puntajes_por_categoria:
+    - categoria: "Supervisión del Uso de Tecnología"
+      puntaje: 9
+    - categoria: "Conocimiento sobre Riesgos Digitales"
+      puntaje: 9
+    - categoria: "Capacidad de Respuesta y Protección"
+      puntaje: 7
+    - indicadores_demograficos: 3
+
+  nivel_riesgo: "SIGNIFICATIVO"
+  id_riesgo: 3
+  color_riesgo: "#E74C3C"
+
+  recomendaciones: |
+    1. FORMACIÓN PARENTAL URGENTE: Talleres de habilidades parentales digitales
+       (supervisión, comunicación y normas de uso de tecnología).
+    2. ARTICULACIÓN CON RED DE APOYO: Conectar a la madre con la comisaría de familia
+       y el colegio de la NNA para seguimiento conjunto.
+    3. PSICOEDUCACIÓN: Informar a la madre sobre ESDI, señales de alerta y rutas
+       de atención disponibles (Línea 141, ICBF, Policía Cibernética).
+    4. PLAN DE SEGURIDAD DIGITAL EN EL HOGAR: Apoyo para establecer reglas de uso,
+       tiempo de pantalla y configuración de controles parentales.
+    5. FORTALECIMIENTO DEL VÍNCULO: Programa de actividades para mejorar la
+       comunicación madre-hija sobre temas digitales y de protección personal.

@@ -1,0 +1,478 @@
+# =============================================================================
+# HISTORIAS DE USUARIO — ROL 1: SUPER ADMINISTRADOR
+# Aplicación: ModoSeguro - VigiatpApp
+# Proyecto:   Educa Digital / OIM / ICBF
+# Fecha:      2026-03-19
+# Versión:    1.0.0
+# =============================================================================
+
+meta:
+  proyecto: "ModoSeguro – VigiatpApp"
+  version_app: "2026.03"
+  fecha_generacion: "2026-03-19"
+  rol_id: 1
+  rol_nombre: "Super Administrador"
+  autor: "GitHub Copilot – Educa Digital"
+
+rol:
+  nombre: "Super Administrador"
+  descripcion: >
+    El Super Administrador es el usuario con el mayor nivel de acceso y
+    responsabilidad en la aplicación ModoSeguro. Tiene acceso completo
+    a todos los tipos de entrevista, puede ver todos los resultados del
+    sistema, gestionar información y supervisar la actividad general de
+    la plataforma. Generalmente corresponde a un coordinador nacional
+    o director del programa.
+  nivel_superusuario: true
+  tipos_entrevista_permitidos:
+    - id: 1
+      nombre: "Versión 3 — Funcionarios Públicos"
+    - id: 2
+      nombre: "Versión 4 — Agentes Externos"
+    - id: 3
+      nombre: "Versión 2 — Niñas, Niños y Adolescentes"
+    - id: 4
+      nombre: "Versión 1 — Madres, padres y cuidadores"
+  restricciones: "Ninguna — acceso total sin restricciones"
+
+# =============================================================================
+# EPICAS
+# =============================================================================
+epicas:
+  - id: "EP-01"
+    nombre: "Autenticación y Acceso"
+  - id: "EP-02"
+    nombre: "Panel Principal (Dashboard)"
+  - id: "EP-03"
+    nombre: "Formulario de Entrevista"
+  - id: "EP-04"
+    nombre: "Gestión de Entrevistas Realizadas"
+  - id: "EP-05"
+    nombre: "Materiales de Consulta"
+  - id: "EP-06"
+    nombre: "Resultados y Reportes Estadísticos"
+  - id: "EP-07"
+    nombre: "Canales y Rutas de Atención"
+
+# =============================================================================
+# HISTORIAS DE USUARIO
+# =============================================================================
+historias:
+
+  # ── EP-01: Autenticación ──────────────────────────────────────────────────
+  - id: "US-ROL1-001"
+    epica: "EP-01"
+    titulo: "Iniciar sesión con credenciales institucionales"
+    pantalla: "LoginScreen"
+    narrativa:
+      como: "Super Administrador de la plataforma ModoSeguro"
+      quiero: "ingresar mi correo electrónico institucional y contraseña en la pantalla de inicio de sesión"
+      para: "acceder a todas las funcionalidades de la aplicación con mis privilegios completos"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Tengo credenciales válidas de Super Administrador"
+        cuando: "Ingreso mi correo y contraseña correctos en la pantalla de login"
+        entonces: "La aplicación inicia sesión y me lleva directamente al panel principal (Dashboard)"
+      - dado: "La aplicación está conectada a internet"
+        cuando: "Inicio sesión exitosamente"
+        entonces: "La app sincroniza automáticamente las entrevistas pendientes de envío al servidor"
+      - dado: "Ingreso credenciales incorrectas"
+        cuando: "Presiono el botón Iniciar Sesión"
+        entonces: "La aplicación muestra el mensaje de error de autenticación sin exponer información sensible"
+    casos_prueba: ["TC-GEN-001", "TC-GEN-002", "TC-GEN-003", "TC-GEN-004"]
+    notas: >
+      La sesión funciona también sin conexión a internet si el usuario
+      ya inició sesión previamente en el dispositivo.
+
+  - id: "US-ROL1-002"
+    epica: "EP-01"
+    titulo: "Iniciar sesión en modo sin conexión (offline)"
+    pantalla: "LoginScreen"
+    narrativa:
+      como: "Super Administrador en trabajo de campo sin acceso a internet"
+      quiero: "poder iniciar sesión con mis credenciales aunque no haya conexión"
+      para: "continuar trabajando y registrando información sin depender de la red"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "No hay conexión a internet y ya inicié sesión antes en el dispositivo"
+        cuando: "Ingreso mis credenciales correctas"
+        entonces: "La aplicación me autentifica usando la información guardada localmente y me lleva al Dashboard"
+      - dado: "No hay internet y nunca inicié sesión en este dispositivo"
+        cuando: "Intento iniciar sesión"
+        entonces: "La app muestra un mensaje explicativo indicando que no hay conexión"
+    casos_prueba: []
+    notas: "La validación offline usa MD5 del password almacenado en SQLite local."
+
+  - id: "US-ROL1-003"
+    epica: "EP-01"
+    titulo: "Aceptar términos y condiciones en primer uso"
+    pantalla: "TerminosScreen"
+    narrativa:
+      como: "Super Administrador que usa la aplicación por primera vez"
+      quiero: "leer y aceptar los términos y condiciones de uso de la aplicación"
+      para: "poder acceder al panel principal y cumplir con los requisitos legales del programa"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Es mi primer inicio de sesión en el dispositivo"
+        cuando: "Inicio sesión correctamente"
+        entonces: "La app me redirige a la pantalla de Términos y Condiciones antes de mostrar el Dashboard"
+      - dado: "Estoy en la pantalla de Términos"
+        cuando: "Leo y acepto los términos"
+        entonces: "Quedo registrado como usuario con términos aceptados y accedo al Dashboard"
+    casos_prueba: ["TC-GEN-025"]
+    notas: "Los términos se cargan desde el servidor al inicio; hay versión en español e inglés."
+
+  # ── EP-02: Dashboard ─────────────────────────────────────────────────────
+  - id: "US-ROL1-004"
+    epica: "EP-02"
+    titulo: "Visualizar el panel principal con todas las funciones"
+    pantalla: "HomeScreen"
+    narrativa:
+      como: "Super Administrador autenticado"
+      quiero: "ver el panel principal con todas las opciones disponibles para mi rol"
+      para: "navegar rápidamente a cualquier sección de la aplicación"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Inicié sesión correctamente como Super Administrador"
+        cuando: "Se carga el panel principal (Dashboard)"
+        entonces: >
+          Veo los 4 accesos: Formulario de Entrevista, Materiales de consulta,
+          Resultados, y Canales y reporte
+      - dado: "Estoy en el Dashboard"
+        cuando: "Toco cualquier tarjeta"
+        entonces: "La navegación me lleva a la pantalla correcta conservando mis datos de sesión"
+    casos_prueba: ["TC-GEN-007", "TC-GEN-008", "TC-GEN-009", "TC-GEN-010", "TC-GEN-011", "TC-GEN-012"]
+    notas: >
+      En el Dashboard también hay una barra de navegación inferior (FooterNav)
+      con 4 pestañas: Inicio, Entrevista, Resultados y Materiales.
+
+  # ── EP-03: Entrevistas ────────────────────────────────────────────────────
+  - id: "US-ROL1-005"
+    epica: "EP-03"
+    titulo: "Ver todos los tipos de entrevista disponibles"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Super Administrador"
+      quiero: "ver en la pantalla de Entrevistas las 4 versiones disponibles sin restricciones"
+      para: "seleccionar cualquier tipo de entrevista según la necesidad del caso"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Ingreso a la sección de Entrevistas"
+        cuando: "Se carga la pantalla EntrevistaScreen"
+        entonces: >
+          Veo las 4 tarjetas: Versión 1 (Padres/Cuidadores), Versión 2 (NNA),
+          Versión 3 (Funcionarios), Versión 4 (Agentes Externos)
+      - dado: "Toco la tarjeta de cualquier versión"
+        cuando: "La ficha está configurada en la base de datos"
+        entonces: "Navego a la pantalla de Instrucciones de esa versión"
+    casos_prueba: ["TC-ROL1-001", "TC-ROL1-002", "TC-ROL1-003", "TC-ROL1-004"]
+    notas: >
+      Como Rol 1, tengo acceso a los 4 tipos por la función canShow que da
+      bypass completo a roles 1 y 2. No dependo de la lista de permisos.
+
+  - id: "US-ROL1-006"
+    epica: "EP-03"
+    titulo: "Leer instrucciones antes de iniciar una entrevista"
+    pantalla: "InstruccionScreen"
+    narrativa:
+      como: "Super Administrador que va a aplicar una entrevista"
+      quiero: "leer las instrucciones específicas del tipo de entrevista seleccionado"
+      para: "aplicarla correctamente y de acuerdo al protocolo establecido"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Seleccioné un tipo de entrevista en EntrevistaScreen"
+        cuando: "Se carga InstruccionScreen"
+        entonces: >
+          Veo el título de la versión seleccionada y las instrucciones
+          de uso cargadas desde la base de datos del servidor
+      - dado: "Leí las instrucciones"
+        cuando: "Presiono el botón Continuar"
+        entonces: "Navego a la pantalla de Asentimiento Informado"
+    casos_prueba: []
+    notas: "Las instrucciones se cargan dinámicamente desde el catálogo del servidor."
+
+  - id: "US-ROL1-007"
+    epica: "EP-03"
+    titulo: "Registrar el asentimiento informado del participante"
+    pantalla: "AsentimientoScreen"
+    narrativa:
+      como: "Super Administrador antes de comenzar una entrevista"
+      quiero: "presentar el asentimiento informado al participante y registrar su decisión"
+      para: "garantizar que la entrevista se realiza con el consentimiento explícito del participante"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "El participante desea aceptar participar"
+        cuando: "Presiona el botón Aceptar en la pantalla de Asentimiento"
+        entonces: >
+          Si es entrevista nueva, se crea el registro y navego a PasoUno (datos demográficos).
+          Si es entrevista en curso, retomo donde la dejé.
+      - dado: "El participante rechaza participar"
+        cuando: "Presiona Rechazar"
+        entonces: "Navego a la pantalla de ConsentimientoRechazado con mensaje explicativo"
+    casos_prueba: []
+    notas: >
+      El texto del asentimiento es dinámico, cargado desde el servidor
+      en el idioma activo (español / inglés).
+
+  - id: "US-ROL1-008"
+    epica: "EP-03"
+    titulo: "Ingresar datos demográficos del entrevistado"
+    pantalla: "PasoUnoScreen"
+    narrativa:
+      como: "Super Administrador aplicando una entrevista"
+      quiero: "registrar los datos demográficos completos del participante"
+      para: "contextualizar correctamente los resultados del instrumento de evaluación"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en PasoUno"
+        cuando: "Completo todos los campos: fecha nacimiento, género, zona, escolaridad, nacionalidad, etc."
+        entonces: "El botón Siguiente se activa y puedo avanzar a las preguntas del instrumento"
+      - dado: "Dejo algún campo sin completar"
+        cuando: "Presiono Siguiente"
+        entonces: "Aparece la alerta 'Completa todos los campos' y no avanzo"
+      - dado: "El participante es mayor de 18 años"
+        cuando: "Selecciono su fecha de nacimiento"
+        entonces: "Aparece alerta 'Debes ser menor a 18 años' (para entrevistas de NNA)"
+    casos_prueba: []
+    notas: >
+      Los campos de desplazamiento y tipo de migración se habilitan condicionalmente
+      según las respuestas previas. Los indicadores demográficos se calculan automáticamente.
+
+  - id: "US-ROL1-009"
+    epica: "EP-03"
+    titulo: "Responder todas las preguntas del instrumento de evaluación"
+    pantalla: "PasoDosScreen"
+    narrativa:
+      como: "Super Administrador aplicando una entrevista"
+      quiero: "recorrer y responder todas las preguntas del instrumento una por una"
+      para: "evaluar de manera completa y sistemática los factores de riesgo del participante"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en una pregunta del instrumento"
+        cuando: "Selecciono una respuesta del grupo de opciones"
+        entonces: "La respuesta queda guardada y el botón Siguiente se activa"
+      - dado: "Quiero navegar hacia atrás en el instrumento"
+        cuando: "Presiono la flecha de retroceso"
+        entonces: "Vuelvo a la pregunta anterior conservando la respuesta ya dada"
+      - dado: "Respondo la última pregunta del instrumento"
+        cuando: "Presiono Siguiente"
+        entonces: "Navego a la pantalla de Observaciones (PasoComentario)"
+    casos_prueba: []
+    notas: "El progreso se muestra como porcentaje en una barra visual en la parte superior."
+
+  - id: "US-ROL1-010"
+    epica: "EP-03"
+    titulo: "Salir de una entrevista en curso con registro del motivo"
+    pantalla: "PasoDosScreen"
+    narrativa:
+      como: "Super Administrador que necesita interrumpir una entrevista"
+      quiero: "salir de la entrevista y registrar el motivo de la interrupción"
+      para: "documentar la incidencia y retomar la entrevista en otro momento"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en cualquier paso de la entrevista"
+        cuando: "Presiono el ícono de salir"
+        entonces: "Aparece un modal solicitando el motivo de la salida antes de cerrar"
+      - dado: "Registro el motivo y confirmo salir"
+        cuando: "Presiono Aceptar en el modal"
+        entonces: "La entrevista queda guardada como Pendiente en el listado con el motivo registrado"
+    casos_prueba: []
+    notas: "Las entrevistas pendientes pueden retomarse desde el Listado de Entrevistas."
+
+  - id: "US-ROL1-011"
+    epica: "EP-03"
+    titulo: "Registrar observaciones y finalizar la entrevista"
+    pantalla: "PasoComentarioScreen"
+    narrativa:
+      como: "Super Administrador al final de una entrevista"
+      quiero: "escribir observaciones sobre redes sociales y plataformas usadas por el participante y confirmar el cierre"
+      para: "enriquecer el reporte con información cualitativa y generar el resultado final"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Completé todas las preguntas del instrumento"
+        cuando: "Escribo observaciones y presiono Guardar / Ver Resultados"
+        entonces: "Aparece modal de confirmación: '¿Deseas finalizar la entrevista?'"
+      - dado: "Confirmo la finalización"
+        cuando: "Presiono Sí, finalizar"
+        entonces: >
+          La entrevista se marca como Completa, se calculan los puntajes,
+          se asigna nivel de riesgo y navego a PasoTres (Resultados)
+    casos_prueba: []
+    notas: >
+      Una vez finalizada, la entrevista NO puede ser modificada.
+      El sistema calcula automáticamente los puntajes por categoría y el nivel de riesgo global.
+
+  - id: "US-ROL1-012"
+    epica: "EP-03"
+    titulo: "Ver resultados individuales y descargar reporte Excel"
+    pantalla: "PasoTresScreen"
+    narrativa:
+      como: "Super Administrador tras completar una entrevista"
+      quiero: "ver los resultados detallados con puntajes por categoría, nivel de riesgo y recomendaciones"
+      para: "tomar decisiones informadas sobre la atención requerida por el participante"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "La entrevista fue completada"
+        cuando: "Se carga PasoTresScreen"
+        entonces: >
+          Veo: tabla de puntajes por categoría, nivel de riesgo general con barra de color,
+          recomendaciones específicas y botón Descargar
+      - dado: "Presiono Descargar"
+        cuando: "El dispositivo tiene espacio disponible"
+        entonces: "Se genera un reporte en formato Excel con todos los datos demográficos y resultados"
+    casos_prueba: []
+    notas: >
+      El reporte Excel incluye: datos demográficos, versión aplicada, puntajes por categoría,
+      nivel de riesgo, recomendaciones y observaciones. La entrevista se envía automáticamente
+      al servidor cuando hay conexión a internet.
+
+  # ── EP-04: Gestión de Entrevistas ────────────────────────────────────────
+  - id: "US-ROL1-013"
+    epica: "EP-04"
+    titulo: "Ver el historial de todas las entrevistas realizadas"
+    pantalla: "ListadoEntrevistasScreen"
+    narrativa:
+      como: "Super Administrador"
+      quiero: "ver el listado completo de entrevistas realizadas con su estado (completa/pendiente)"
+      para: "hacer seguimiento y gestión de todas las evaluaciones registradas"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo al historial de entrevistas"
+        cuando: "Se carga el listado"
+        entonces: "Veo todas las entrevistas con: ID, tipo, fecha, estado (naranja=Pendiente, verde=Completa)"
+      - dado: "Quiero buscar una entrevista específica"
+        cuando: "Escribo en el buscador o selecciono una fecha en el calendario"
+        entonces: "El listado se filtra en tiempo real mostrando solo los resultados coincidentes"
+    casos_prueba: ["TC-LISTADO-001", "TC-LISTADO-002"]
+    notas: "El listado está paginado (5 elementos por página) con carga dinámica al hacer scroll."
+
+  - id: "US-ROL1-014"
+    epica: "EP-04"
+    titulo: "Retomar una entrevista pendiente"
+    pantalla: "ListadoEntrevistasScreen"
+    narrativa:
+      como: "Super Administrador con entrevistas incompletas"
+      quiero: "seleccionar una entrevista pendiente y retomarla desde donde la dejé"
+      para: "completar evaluaciones que fueron interrumpidas"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Hay una entrevista con estado Pendiente en el listado"
+        cuando: "Toco el ícono de menú ⋮ y presiono Retomar Entrevista"
+        entonces: >
+          La app navega a InstruccionScreen y luego AsentimientoScreen.
+          Al aceptar, la entrevista se retoma desde PasoUno / PasoDos
+          mostrando las respuestas ya registradas.
+    casos_prueba: []
+    notas: "Las respuestas guardadas anteriormente se precargan correctamente."
+
+  # ── EP-06: Resultados ─────────────────────────────────────────────────────
+  - id: "US-ROL1-015"
+    epica: "EP-06"
+    titulo: "Ver el resumen estadístico general de resultados"
+    pantalla: "ResumenScreen"
+    narrativa:
+      como: "Super Administrador responsable de supervisión general"
+      quiero: "acceder a un resumen estadístico de todas las entrevistas"
+      para: "monitorear el estado del programa y los niveles de riesgo identificados en campo"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a la pantalla de Resultados/Resumen"
+        cuando: "Se carga ResumenScreen"
+        entonces: >
+          Veo: total de entrevistas completas y pendientes, número de casos con riesgo
+          Mínimo (verde), Bajo (amarillo) y Significativo (rojo)
+      - dado: "Hay nuevas entrevistas completadas"
+        cuando: "Navego a ResumenScreen"
+        entonces: "Los contadores se actualizan automáticamente con los datos más recientes"
+    casos_prueba: ["TC-RES-1-001"]
+    notas: "Los datos provienen de la base de datos local SQLite del dispositivo."
+
+  # ── EP-05 y EP-07 ─────────────────────────────────────────────────────────
+  - id: "US-ROL1-016"
+    epica: "EP-05"
+    titulo: "Consultar materiales de apoyo y recursos educativos"
+    pantalla: "MaterialesConsultaScreen"
+    narrativa:
+      como: "Super Administrador que necesita material de referencia"
+      quiero: "consultar los materiales educativos disponibles en la aplicación"
+      para: "apoyar la formación del equipo y compartir recursos con actores comunitarios"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en la pantalla de Materiales"
+        cuando: "Se carga el catálogo"
+        entonces: "Veo todos los recursos disponibles categorizados por tipo"
+      - dado: "Toco un material específico"
+        cuando: "Se carga la pantalla de detalle"
+        entonces: "Veo imagen, título y descripción completa del material"
+    casos_prueba: []
+    notas: "Los materiales incluyen conceptos, ampliaciones, rutas de atención e información de ICBF."
+
+  - id: "US-ROL1-017"
+    epica: "EP-07"
+    titulo: "Consultar canales y rutas de atención y reporte"
+    pantalla: "RutasScreen"
+    narrativa:
+      como: "Super Administrador ante un caso identificado"
+      quiero: "consultar los canales de denuncia y rutas de atención disponibles"
+      para: "activar los mecanismos de protección y canalizar el caso correctamente"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Identifico un caso que requiere atención inmediata"
+        cuando: "Accedo a la sección de Canales y reporte"
+        entonces: >
+          Veo las rutas de atención institucionales, líneas de reporte
+          y protocolos de acción disponibles en la aplicación
+    casos_prueba: []
+    notas: "El texto de rutas se actualiza desde el servidor al iniciar sesión."
+
+escenarios_casos_uso:
+  - id: "UC-ROL1-001"
+    titulo: "Flujo completo: login → entrevista NNA → resultados"
+    actor: "Super Administrador (rolId: 1)"
+    precondicion: "Usuario registrado con términos aceptados, dispositivo con internet"
+    flujo_principal:
+      - paso: 1
+        accion: "Ingresa correo y contraseña en LoginScreen"
+        resultado: "Autenticación exitosa y sincronización de datos"
+      - paso: 2
+        accion: "Toca 'Formulario de Entrevista' en el Dashboard"
+        resultado: "Navega a EntrevistaScreen"
+      - paso: 3
+        accion: "Selecciona 'Versión 2 — Niñas, Niños y Adolescentes'"
+        resultado: "Navega a InstruccionScreen"
+      - paso: 4
+        accion: "Lee instrucciones y toca Continuar"
+        resultado: "Navega a AsentimientoScreen"
+      - paso: 5
+        accion: "El NNA acepta. Toca Aceptar"
+        resultado: "Se crea registro de entrevista. Navega a PasoUnoScreen"
+      - paso: 6
+        accion: "Completa todos los datos demográficos y toca Siguiente"
+        resultado: "Navega a PasoDosScreen con primera pregunta"
+      - paso: 7
+        accion: "Responde todas las preguntas del instrumento"
+        resultado: "Avanza automáticamente. Al llegar a la última va a PasoComentario"
+      - paso: 8
+        accion: "Escribe observaciones y confirma finalización"
+        resultado: "Entrevista marcada Completa. Puntajes calculados. Navega a PasoTres"
+      - paso: 9
+        accion: "Revisa resultados y descarga Excel"
+        resultado: "Reporte generado y enviado al servidor"
+    postcondicion: "Entrevista completa registrada, resultados disponibles, archivo enviado al servidor"

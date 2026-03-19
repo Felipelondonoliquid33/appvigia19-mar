@@ -1,0 +1,321 @@
+# =============================================================================
+# HISTORIAS DE USUARIO — ROL 4: FUNCIONARIO
+# Aplicación: ModoSeguro - VigiatpApp
+# Proyecto:   Educa Digital / OIM / ICBF
+# Fecha:      2026-03-19
+# =============================================================================
+
+meta:
+  proyecto: "ModoSeguro – VigiatpApp"
+  version_app: "2026.03"
+  fecha_generacion: "2026-03-19"
+  rol_id: 4
+  rol_nombre: "Funcionario"
+  autor: "GitHub Copilot – Educa Digital"
+
+rol:
+  nombre: "Funcionario"
+  descripcion: >
+    El Funcionario es el entrevistador institucional asignado a entidades públicas
+    (colegios, alcaldías, comisarías de familia, etc.). Tiene el mismo conjunto de
+    entrevistas disponibles que el Profesional de Campo (Versiones 1, 2 y 3), con
+    la misma restricción: NO puede acceder a entrevistas de Agentes Externos (V4).
+    Solo visualiza sus propias entrevistas en el historial.
+    El Funcionario puede registrarse con su correo institucional desde la app.
+  nivel_superusuario: false
+  tipos_entrevista_permitidos:
+    - id: 4
+      nombre: "Versión 1 — Madres, padres y cuidadores"
+    - id: 3
+      nombre: "Versión 2 — Niñas, Niños y Adolescentes"
+    - id: 1
+      nombre: "Versión 3 — Funcionarios Públicos"
+  tipos_entrevista_bloqueados:
+    - id: 2
+      nombre: "Versión 4 — Agentes Externos"
+      razon: "Reservada para Rol 5 (Agente Externo) y roles 1-2."
+  restricciones:
+    - "NO puede acceder a entrevistas de Agentes Externos"
+    - "Solo ve sus propias entrevistas en el historial"
+    - "Se puede auto-registrar en la app con Rol 4 desde CrearScreen"
+
+epicas:
+  - id: "EP-01"
+    nombre: "Registro y Autenticación"
+  - id: "EP-02"
+    nombre: "Panel Principal"
+  - id: "EP-03"
+    nombre: "Aplicación de Entrevistas"
+  - id: "EP-04"
+    nombre: "Gestión de Mis Entrevistas"
+  - id: "EP-05"
+    nombre: "Materiales y Rutas Institucionales"
+  - id: "EP-06"
+    nombre: "Resultados de Evaluaciones"
+
+historias:
+
+  # ── EP-01 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL4-001"
+    epica: "EP-01"
+    titulo: "Crear una cuenta nueva como Funcionario institucional"
+    pantalla: "CrearScreen"
+    narrativa:
+      como: "Nuevo Funcionario de una entidad pública que se une al programa"
+      quiero: "registrarme en la aplicación con mis datos institucionales"
+      para: "obtener acceso a los instrumentos de evaluación del programa ModoSeguro"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a CrearScreen desde el link en Login"
+        cuando: "Completo todos los campos: nombre, apellidos, correo, teléfono, institución, rol, contraseña"
+        entonces: "El sistema valida los datos y envía instrucciones de activación a mi correo"
+      - dado: "Selecciono el Rol en el campo selector"
+        cuando: "Veo las opciones disponibles"
+        entonces: "Solo puedo elegir entre 'Funcionarios Externo' (Rol 4) o 'Agente Educativo' (Rol 5)"
+      - dado: "Mi contraseña no cumple los requisitos de seguridad"
+        cuando: "Presiono Registrarme"
+        entonces: >
+          El sistema muestra una alerta indicando los requisitos:
+          mínimo 8 caracteres, mayúscula, minúscula, número, carácter especial
+      - dado: "No acepto los términos y condiciones"
+        cuando: "Veo el botón Registrarme"
+        entonces: "El botón aparece deshabilitado (40% opacidad) y no puedo presionarlo"
+    casos_prueba: []
+    notas: >
+      Los Roles 1, 2 y 3 NO pueden auto-registrarse; son asignados administrativamente.
+      El Rol 4 es el único perfil operativo que puede registrarse como Funcionario Externo.
+
+  - id: "US-ROL4-002"
+    epica: "EP-01"
+    titulo: "Iniciar sesión como Funcionario institucional"
+    pantalla: "LoginScreen"
+    narrativa:
+      como: "Funcionario de una entidad pública participante del programa"
+      quiero: "autenticarme con mi correo institucional y contraseña"
+      para: "acceder a los instrumentos de evaluación asignados a mi rol"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Tengo una cuenta activada con Rol 4"
+        cuando: "Ingreso mis credenciales en LoginScreen"
+        entonces: "Accedo al Dashboard con las 4 secciones disponibles"
+      - dado: "Estoy en una institución sin conexión estable"
+        cuando: "La app detecta que no hay internet"
+        entonces: "Puedo iniciar sesión offline si ya estuve autenticado antes en el dispositivo"
+    casos_prueba: []
+    notas: >
+      En entornos institucionales con conectividad limitada, el modo offline
+      permite continuar el trabajo sin interrupciones.
+
+  - id: "US-ROL4-003"
+    epica: "EP-01"
+    titulo: "Recuperar contraseña olvidada"
+    pantalla: "LoginScreen → OlvidoScreen"
+    narrativa:
+      como: "Funcionario que olvidó su contraseña"
+      quiero: "solicitar el restablecimiento de mi contraseña a través de la aplicación"
+      para: "recuperar el acceso a mis herramientas de trabajo sin acudir a soporte técnico"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en LoginScreen con conexión a internet"
+        cuando: "Toco '¿Olvidaste tu contraseña?'"
+        entonces: "Navego a la pantalla de recuperación de contraseña"
+      - dado: "No hay conexión a internet"
+        cuando: "Veo la pantalla de login"
+        entonces: "El enlace de recuperación no aparece (solo disponible online)"
+    casos_prueba: []
+    notas: "El enlace de recuperación y el de Crear Cuenta solo se muestran cuando hay internet."
+
+  # ── EP-02 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL4-004"
+    epica: "EP-02"
+    titulo: "Orientarme en el panel principal para iniciar una evaluación"
+    pantalla: "HomeScreen"
+    narrativa:
+      como: "Funcionario institucional que usa la app por primera vez en campo"
+      quiero: "ingresar al panel principal y entender las opciones disponibles"
+      para: "navegar rápidamente hasta el formulario de entrevista que debo aplicar"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy autenticado en la app"
+        cuando: "Se carga HomeScreen"
+        entonces: >
+          Veo el mensaje de bienvenida, 4 tarjetas de acceso y la barra de
+          navegación inferior con mis opciones de trabajo
+    casos_prueba: ["TC-HOME-4-001"]
+    notas: "El Dashboard es igual para todos los roles; la diferencia está en los permisos de entrevista."
+
+  # ── EP-03 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL4-005"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista a un Funcionario Público compañero de institución"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Funcionario aplicador del programa en mi institución"
+      quiero: "usar la Versión 3 — Funcionarios Públicos para evaluar a mis colegas de trabajo"
+      para: "medir el nivel de conocimiento institucional sobre ESDI en nuestra entidad"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a EntrevistaScreen"
+        cuando: "Se cargan los tipos disponibles"
+        entonces: "Veo la tarjeta de Versión 3 (Funcionarios Públicos) y puedo seleccionarla"
+      - dado: "Completo la entrevista"
+        cuando: "Obtengo los resultados en PasoTres"
+        entonces: "Veo el nivel de conocimiento del entrevistado y las recomendaciones para su institución"
+    casos_prueba: ["TC-ROL4-001", "TC-ROL4-003"]
+    notas: "Esta es la entrevista más característica del Rol 4 en contextos institucionales."
+
+  - id: "US-ROL4-006"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista a un NNA en el colegio o entidad (Versión 2)"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Funcionario de orientación escolar o trabajador social institucional"
+      quiero: "aplicar la Versión 2 a un estudiante o NNA identificado en riesgo"
+      para: "evaluar su situación digital y activar los protocolos de protección si es necesario"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Identifico un NNA en posible riesgo en mi institución"
+        cuando: "Selecciono Versión 2 — NNA en EntrevistaScreen"
+        entonces: "Inicio el proceso de evaluación respetando el protocolo de asentimiento informado"
+      - dado: "El NNA rechaza el asentimiento"
+        cuando: "Presiona Rechazar en AsentimientoScreen"
+        entonces: "Navegamos a la pantalla de rechazo con orientaciones de siguiente pasos"
+    casos_prueba: ["TC-ROL4-003"]
+    notas: >
+      El protocolo de asentimiento informado es obligatorio antes de cualquier entrevista a NNA.
+      En caso de rechazo, la entrevista no puede realizarse.
+
+  - id: "US-ROL4-007"
+    epica: "EP-03"
+    titulo: "Confirmar que NO tengo acceso a entrevistas de Agentes Externos"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Funcionario que conoce sus límites de acceso"
+      quiero: "verificar que el sistema bloquea correctamente el acceso a la Versión 4"
+      para: "garantizar que solo aplico los instrumentos autorizados para mi rol"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a EntrevistaScreen como Funcionario (Rol 4)"
+        cuando: "Se cargan las tarjetas disponibles"
+        entonces: >
+          La tarjeta de Versión 4 (Agentes Externos) NO aparece en la pantalla.
+          Solo veo las 3 versiones autorizadas.
+    casos_prueba: ["TC-ROL4-002", "TC-ENT-4-001", "TC-ENT-4-002", "TC-ENT-4-003", "TC-ENT-4-004"]
+    notas: "La función canShow([5]) retorna FALSE para rolId=4, bloqueando la Versión 4."
+
+  # ── EP-04 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL4-008"
+    epica: "EP-04"
+    titulo: "Gestionar y revisar mis entrevistas desde el historial"
+    pantalla: "ListadoEntrevistasScreen"
+    narrativa:
+      como: "Funcionario que lleva registro de sus evaluaciones institucionales"
+      quiero: "consultar el historial de todas mis entrevistas aplicadas"
+      para: "hacer seguimiento a los casos evaluados en mi institución"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo al historial de entrevistas"
+        cuando: "Se carga el listado"
+        entonces: "Solo veo mis propias entrevistas (filtradas por mi ID de usuario)"
+      - dado: "Busco una entrevista"
+        cuando: "Uso el buscador por ID o filtro de fecha"
+        entonces: "Encuentro la entrevista correcta en el listado filtrado"
+    casos_prueba: ["TC-USR-301", "TC-USR-302", "TC-USR-303", "TC-USR-304"]
+    notas: "La privacidad de datos es un aspecto crítico: cada funcionario solo ve sus propios registros."
+
+  # ── EP-06 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL4-009"
+    epica: "EP-06"
+    titulo: "Ver resultados y descargar reporte de evaluación institucional"
+    pantalla: "PasoTresScreen"
+    narrativa:
+      como: "Funcionario que presenta resultados a su directivo"
+      quiero: "ver los resultados de la evaluación y exportarla en formato Excel"
+      para: "documentar y reportar el estado de la institución frente a la ESDI"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Completé una entrevista de tipo Funcionario Público"
+        cuando: "Veo los resultados en PasoTresScreen"
+        entonces: >
+          Visualizo: puntajes por categoría de conocimiento, nivel de riesgo institucional
+          y recomendaciones para mejorar la capacidad de respuesta
+      - dado: "Necesito entregar un reporte formal"
+        cuando: "Presiono Descargar"
+        entonces: "Se genera un Excel con todos los datos y resultados para entregar a mi jefatura"
+    casos_prueba: []
+    notas: "El Excel incluye datos demográficos, versión aplicada, puntajes, nivel de riesgo y sugerencias."
+
+  # ── EP-05 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL4-010"
+    epica: "EP-05"
+    titulo: "Consultar materiales para fortalecer la respuesta institucional"
+    pantalla: "MaterialesConsultaScreen"
+    narrativa:
+      como: "Funcionario que quiere capacitar a su equipo institucional"
+      quiero: "acceder a los materiales educativos y guías de atención disponibles"
+      para: "fortalecer las capacidades de mi institución en la prevención de la ESDI"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en la sección de Materiales"
+        cuando: "Cargo el catálogo"
+        entonces: "Veo todos los recursos: conceptos, ampliaciones, rutas de atención ICBF, etc."
+    casos_prueba: []
+    notas: "Los materiales son los mismos para todos los roles: el contenido no varía por rol."
+
+  - id: "US-ROL4-011"
+    epica: "EP-05"
+    titulo: "Consultar rutas de atención y reporte para activar protocolos"
+    pantalla: "RutasScreen"
+    narrativa:
+      como: "Funcionario institucional ante un caso identificado"
+      quiero: "consultar las rutas de atención y canales de denuncia disponibles"
+      para: "activar los protocolos correctos y reportar al ICBF o entidades competentes"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Identifiqué un caso de NNA en riesgo"
+        cuando: "Accedo a Canales y reporte"
+        entonces: "Encuentro las rutas de atención y números de contacto para reportar el caso"
+    casos_prueba: []
+    notas: "Las rutas se actualizan desde el servidor. Incluyen: Línea 141, PARD, ICBF, comisarías."
+
+escenarios_casos_uso:
+  - id: "UC-ROL4-001"
+    titulo: "Evaluación institucional: aplicar entrevista a funcionarios del colegio"
+    actor: "Funcionario (rolId: 4) — Orientadora Escolar"
+    precondicion: "Usuario registrado y con sesión activa. Institución educativa con internet."
+    flujo_principal:
+      - paso: 1
+        accion: "Inicia sesión con su cuenta de Funcionario"
+        resultado: "Accede al Dashboard institucional"
+      - paso: 2
+        accion: "Accede a Formulario de Entrevista → Versión 3 (Funcionarios Públicos)"
+        resultado: "Ve las instrucciones del instrumento"
+      - paso: 3
+        accion: "El docente acepta el asentimiento informado"
+        resultado: "Se crea registro de entrevista. Inicia en PasoUno"
+      - paso: 4
+        accion: "Registra datos del funcionario (edad, zona, cargo institucional, etc.)"
+        resultado: "Datos guardados. Avanza a preguntas del instrumento"
+      - paso: 5
+        accion: "Responde preguntas sobre conocimiento de ESDI, protocolos y señales de alerta"
+        resultado: "Progreso visible. Respuestas guardadas localmente"
+      - paso: 6
+        accion: "Finaliza la entrevista y ve resultados"
+        resultado: >
+          Nivel de capacidad institucional: Mínimo/Bajo/Significativo con
+          recomendaciones específicas para la institución
+      - paso: 7
+        accion: "Descarga el reporte Excel y lo envía a la coordinación"
+        resultado: "Reporte oficial generado para el expediente institucional"
+    postcondicion: "Evaluación institucional documentada. Enviada al servidor automáticamente."

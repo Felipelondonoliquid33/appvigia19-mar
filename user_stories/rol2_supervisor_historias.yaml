@@ -1,0 +1,305 @@
+# =============================================================================
+# HISTORIAS DE USUARIO — ROL 2: SUPERVISOR
+# Aplicación: ModoSeguro - VigiatpApp
+# Proyecto:   Educa Digital / OIM / ICBF
+# Fecha:      2026-03-19
+# =============================================================================
+
+meta:
+  proyecto: "ModoSeguro – VigiatpApp"
+  version_app: "2026.03"
+  fecha_generacion: "2026-03-19"
+  rol_id: 2
+  rol_nombre: "Supervisor"
+  autor: "GitHub Copilot – Educa Digital"
+
+rol:
+  nombre: "Supervisor"
+  descripcion: >
+    El Supervisor es el usuario co-administrador del sistema. Tiene el mismo
+    nivel de acceso que el Super Administrador: puede aplicar y ver todos los
+    tipos de entrevista, revisar estadísticas completas del equipo bajo su
+    supervisión y acceder a cualquier sección de la aplicación sin restricciones.
+    Generalmente corresponde a un coordinador regional o líder de equipo.
+  nivel_superusuario: true
+  tipos_entrevista_permitidos:
+    - id: 1
+      nombre: "Versión 3 — Funcionarios Públicos"
+    - id: 2
+      nombre: "Versión 4 — Agentes Externos"
+    - id: 3
+      nombre: "Versión 2 — Niñas, Niños y Adolescentes"
+    - id: 4
+      nombre: "Versión 1 — Madres, padres y cuidadores"
+  restricciones: "Ninguna — acceso total sin restricciones (igual que Rol 1)"
+  diferencias_con_rol1: >
+    Operativamente idéntico al Rol 1. La distinción es organizacional:
+    el Supervisor reporta al Super Administrador y puede estar asignado
+    a una región o equipo específico.
+
+epicas:
+  - id: "EP-01"
+    nombre: "Autenticación y Acceso"
+  - id: "EP-02"
+    nombre: "Panel Principal (Dashboard)"
+  - id: "EP-03"
+    nombre: "Formulario de Entrevista"
+  - id: "EP-04"
+    nombre: "Gestión de Entrevistas Realizadas"
+  - id: "EP-05"
+    nombre: "Materiales de Consulta"
+  - id: "EP-06"
+    nombre: "Supervisión de Resultados del Equipo"
+  - id: "EP-07"
+    nombre: "Canales y Rutas de Atención"
+
+historias:
+
+  # ── EP-01 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL2-001"
+    epica: "EP-01"
+    titulo: "Autenticarme como Supervisor con acceso de coordinación"
+    pantalla: "LoginScreen"
+    narrativa:
+      como: "Supervisor del equipo de campo"
+      quiero: "iniciar sesión con mis credenciales institucionales en la aplicación"
+      para: "acceder a todas las funciones con mis permisos de coordinación"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Tengo credenciales válidas de Supervisor (rolId=2)"
+        cuando: "Ingreso mi correo y contraseña"
+        entonces: "La app me autentica y lleva al Dashboard con todos los accesos activos"
+      - dado: "Tengo conexión a internet al iniciar sesión"
+        cuando: "Login exitoso"
+        entonces: "La aplicación sincroniza entrevistas de mi equipo pendientes de envío"
+    casos_prueba: ["TC-ROL2-001~004", "TC-HOME-2-001~006"]
+    notas: "Funciona tanto online como offline (igual que Rol 1)."
+
+  - id: "US-ROL2-002"
+    epica: "EP-01"
+    titulo: "Cambiar el idioma de la aplicación (español / inglés)"
+    pantalla: "LoginScreen"
+    narrativa:
+      como: "Supervisor que trabaja con población bilingüe o en zonas fronterizas"
+      quiero: "cambiar el idioma de la aplicación desde la pantalla de inicio de sesión"
+      para: "adaptar la interfaz al contexto lingüístico del territorio donde trabajo"
+    prioridad: "Baja"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en la pantalla de Login"
+        cuando: "Toco el ícono de idioma en la esquina superior derecha"
+        entonces: "Aparece un modal con opciones: Español / Inglés"
+      - dado: "Selecciono Inglés"
+        cuando: "Cierro el modal y uso la app"
+        entonces: "Todos los textos de la interfaz se muestran en inglés"
+    casos_prueba: []
+    notas: "El cambio de idioma afecta los textos de la interfaz; los datos del catálogo se cargan en el idioma seleccionado."
+
+  # ── EP-02 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL2-003"
+    epica: "EP-02"
+    titulo: "Navegar entre todas las secciones desde el Dashboard"
+    pantalla: "HomeScreen"
+    narrativa:
+      como: "Supervisor che gestiona múltiples actividades simultáneas"
+      quiero: "acceder rápidamente a cualquier sección de la aplicación desde el panel principal"
+      para: "optimizar mi tiempo de trabajo y responder ágilmente a las necesidades del equipo"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Ingresé correctamente al Dashboard"
+        cuando: "Se carga HomeScreen"
+        entonces: "Veo los 4 accesos: Formulario de Entrevista, Materiales, Resultados, Canales y reporte"
+      - dado: "Uso la barra de navegación inferior"
+        cuando: "Toco cualquier pestaña del FooterNav"
+        entonces: "Navego a la sección correspondiente sin perder mi sesión"
+    casos_prueba: ["TC-HOME-2-001", "TC-HOME-2-002", "TC-HOME-2-003", "TC-HOME-2-004", "TC-HOME-2-005"]
+    notas: "El FooterNav está presente en todas las pantallas principales de la aplicación."
+
+  # ── EP-03 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL2-004"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista a Niñas, Niños y Adolescentes (Versión 2)"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Supervisor que también realiza trabajo de campo"
+      quiero: "seleccionar y aplicar la entrevista de NNA (Versión 2)"
+      para: "evaluar directamente los factores de riesgo de un menor identificado"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en EntrevistaScreen"
+        cuando: "Toco la tarjeta 'Versión 2 — Niñas, Niños y Adolescentes'"
+        entonces: "Navego a InstruccionScreen con las instrucciones de la entrevista NNA"
+      - dado: "El NNA acepta el asentimiento informado"
+        cuando: "Inicio el instrumento (PasoUno)"
+        entonces: "Puedo registrar todos los datos demográficos y responder todas las preguntas"
+    casos_prueba: ["TC-ROL2-001", "TC-ROL2-003"]
+    notas: "La Versión 2 (tipo 3 en la DB) evalúa NNA con preguntas sobre uso de tecnología y riesgos digitales."
+
+  - id: "US-ROL2-005"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista a Madres, Padres y Cuidadores (Versión 1)"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Supervisor en visita domiciliaria"
+      quiero: "aplicar la entrevista de Padres y Cuidadores (Versión 1) junto con la de NNA"
+      para: "complementar la evaluación de riesgo con la perspectiva del entorno familiar"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Terminé de entrevistar al NNA"
+        cuando: "Regreso a EntrevistaScreen y selecciono Versión 1"
+        entonces: "Puedo iniciar una nueva entrevista para el cuidador/a de ese mismo NNA"
+    casos_prueba: ["TC-ROL2-004"]
+    notas: "Se recomienda aplicar siempre en pareja: una entrevista al NNA + una al cuidador/a."
+
+  - id: "US-ROL2-006"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista a Funcionarios Públicos (Versión 3)"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Supervisor en visita a institución educativa o entidad pública"
+      quiero: "seleccionar y aplicar la entrevista de Funcionarios Públicos (Versión 3)"
+      para: "evaluar la capacidad institucional de identificar y atender casos de ESDI"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy evaluando una institución"
+        cuando: "Selecciono Versión 3 — Funcionarios Públicos"
+        entonces: "Puedo aplicar el instrumento al docente, directivo o funcionario correspondiente"
+    casos_prueba: ["TC-ROL2-002"]
+    notas: >
+      Esta versión evalúa el nivel de conocimiento institucional sobre trata de personasy ESDI.
+
+  - id: "US-ROL2-007"
+    epica: "EP-03"
+    titulo: "Aplicar entrevista a Agentes Externos (Versión 4)"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Supervisor coordinando con actores comunitarios"
+      quiero: "aplicar la entrevista de Agentes Externos (Versión 4) a líderes comunitarios"
+      para: "evaluar la capacidad preventiva de la comunidad frente a la ESDI"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Estoy en jornada con actores comunitarios"
+        cuando: "Selecciono Versión 4 — Agentes Externos"
+        entonces: "Puedo aplicar el instrumento al agente comunitario o lider"
+    casos_prueba: ["TC-ROL2-001"]
+    notas: "La Versión 4 corresponde al tipo 2 en la base de datos (canShow([5]))."
+
+  # ── EP-04 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL2-008"
+    epica: "EP-04"
+    titulo: "Revisar y gestionar el historial de entrevistas del equipo"
+    pantalla: "ListadoEntrevistasScreen"
+    narrativa:
+      como: "Supervisor con responsabilidad de seguimiento"
+      quiero: "ver el listado detallado de entrevistas realizadas, buscar y filtrar por fecha"
+      para: "hacer seguimiento al trabajo del equipo y asegurar la completitud de los registros"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo al historial de entrevistas"
+        cuando: "Cargo el listado"
+        entonces: "Veo todas las entrevistas con ID, tipo, fecha y estado"
+      - dado: "Necesito ver entrevistas de una fecha específica"
+        cuando: "Uso el filtro de calendario"
+        entonces: "El listado se actualiza mostrando solo las entrevistas de esa fecha"
+    casos_prueba: ["TC-LISTADO-001", "TC-LISTADO-002", "TC-LISTADO-003"]
+    notas: "Las entrevistas pendientes pueden eliminarse; las completadas solo se pueden ver."
+
+  # ── EP-06 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL2-009"
+    epica: "EP-06"
+    titulo: "Revisar el resumen estadístico de los resultados del equipo"
+    pantalla: "ResumenScreen"
+    narrativa:
+      como: "Supervisor responsable de reportar avances del programa"
+      quiero: "acceder al resumen estadístico con totales y distribución de niveles de riesgo"
+      para: "generar reportes de avance, identificar territorios con mayor riesgo y priorizar intervenciones"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a ResumenScreen"
+        cuando: "Se cargan las estadísticas"
+        entonces: >
+          Veo: total entrevistas (completas + pendientes), número de casos con
+          riesgo Mínimo, Bajo y Significativo con barras visuales de color
+      - dado: "El equipo realiza nuevas entrevistas"
+        cuando: "Regreso a ResumenScreen"
+        entonces: "Los datos se actualizan automáticamente reflejando las nuevas entrevistas"
+    casos_prueba: []
+    notas: "Las estadísticas son globales del dispositivo (todas las entrevistas registradas localmente)."
+
+  - id: "US-ROL2-010"
+    epica: "EP-06"
+    titulo: "Ver resultados individuales de una entrevista completada"
+    pantalla: "PasoTresScreen"
+    narrativa:
+      como: "Supervisor realizando seguimiento de un caso específico"
+      quiero: "ver los resultados detallados de una entrevista completada desde el historial"
+      para: "revisar el análisis de riesgo y las recomendaciones generadas para ese participante"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Hay una entrevista con estado Completa en el listado"
+        cuando: "Toco ⋮ y selecciono Ver Resultados"
+        entonces: >
+          Navego a PasoTresScreen para esa entrevista con puntajes por categoría,
+          nivel de riesgo y recomendaciones específicas
+      - dado: "Estoy viendo los resultados"
+        cuando: "Presiono Descargar"
+        entonces: "Se genera y comparte el reporte Excel de esa entrevista"
+    casos_prueba: []
+    notas: "Este flujo va por InstruccionScreen → AsentimientoScreen → PasoTres (skip PasoUno y Dos)."
+
+  # ── EP-05 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL2-011"
+    epica: "EP-05"
+    titulo: "Consultar y compartir materiales educativos con el equipo"
+    pantalla: "MaterialesConsultaScreen"
+    narrativa:
+      como: "Supervisor en capacitación con profesionales de campo"
+      quiero: "acceder a todos los materiales educativos sobre ESDI disponibles en la app"
+      para: "socializar el contenido con el equipo durante jornadas de capacitación"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a la sección de Materiales"
+        cuando: "Cargo el catálogo"
+        entonces: "Veo todos los recursos organizados por categoría (conceptos, ampliaciones, rutas)"
+    casos_prueba: []
+    notas: "Los materiales incluyen información sobre ciberacoso, explotación, reporte al ICBF, etc."
+
+escenarios_casos_uso:
+  - id: "UC-ROL2-001"
+    titulo: "Supervisión y seguimiento: revisar resultados del equipo"
+    actor: "Supervisor (rolId: 2)"
+    precondicion: "Usuario autenticado con entrevistas completadas en el historial"
+    flujo_principal:
+      - paso: 1
+        accion: "Inicia sesión con credenciales de Supervisor"
+        resultado: "Dashboard visible con acceso completo"
+      - paso: 2
+        accion: "Toca 'Resultados' en el Dashboard"
+        resultado: "Navega a ResumenScreen con estadísticas actualizadas"
+      - paso: 3
+        accion: "Revisa el conteo de entrevistas por nivel de riesgo"
+        resultado: >
+          Ve: total entrevistas, distribución por nivel (Mínimo/Bajo/Significativo)
+      - paso: 4
+        accion: "Regresa al Dashboard y entra a Entrevista → Listado"
+        resultado: "Ve el historial completo de entrevistas"
+      - paso: 5
+        accion: "Busca una entrevista de alto riesgo por ID"
+        resultado: "Encuentra la entrevista usando el buscador"
+      - paso: 6
+        accion: "Toca ⋮ → Ver Resultados en la entrevista encontrada"
+        resultado: "Ve los resultados detallados con recomendaciones"
+      - paso: 7
+        accion: "Descarga el reporte Excel"
+        resultado: "Reporte generado y listo para compartir"
+    postcondicion: "Supervisor con información completa para toma de decisiones"

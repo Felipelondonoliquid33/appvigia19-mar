@@ -1,0 +1,294 @@
+# =============================================================================
+# ESCENARIO DE ENTREVISTA COMPLETA — ROL 5: AGENTE EXTERNO
+# Tipo de entrevista: Versión 4 — Agentes Externos (tipo DB: 2)
+# Aplicación: ModoSeguro - VigiatpApp
+# Fecha: 2026-03-19
+# =============================================================================
+
+meta:
+  rol_id: 5
+  rol_nombre: "Agente Externo"
+  tipo_entrevista: 2
+  version_entrevista: "Versión 4 — Agentes Externos / Comunitarios"
+  descripcion_uso: >
+    El Agente Externo aplica su ÚNICA entrevista autorizada (Versión 4) a un
+    líder comunitario en una jornada de evaluación de capacidades preventivas
+    en una comunidad periférica urbana. Operación en modo offline.
+
+sesion:
+  id_entrevista: "5202503191500"
+  fecha_registro: "2026-03-19 15:00:00"
+  aplicada_por:
+    id_usuario: 89
+    nombre: "William Mosquera Palacios"
+    rol: "Agente Externo"
+    entidad: "Red Comunitaria de Protección — Buenaventura"
+  estado: "Completa"
+  enviada_servidor: false
+  modo_offline: true
+  pendiente_envio: true
+  nota: "Se sincronizará al recuperar conexión a internet"
+
+paso_uno_demograficos:
+  id: "5202503191500"
+  fecha_nacimiento: "1975-06-30"
+  edad_calculada: 50
+  genero: "Femenino"
+  zona: "Urbano"
+  victima_conflicto: "Sí"
+  desplazamiento: "No"
+  migrante: "No"
+  tipo_migracion: null
+  etnia: "Afrocolombiana"
+  discapacidad: "No aplica"
+  escolarizado: "Sí"
+  asistencia_regular: null
+  grado: "Bachillerato incompleto"
+  nacionalidad: "Colombiana"
+  departamento: "Valle del Cauca"
+  municipio: "Buenaventura"
+
+indicadores_demograficos_calculados:
+  - indicador: "edad"
+    valor: 3
+    logica: "Adulta en rango de evaluación → valor 3"
+  - indicador: "indigena"
+    valor: 3
+    logica: "Comunidad afrocolombiana → valor 3"
+  - indicador: "migracion"
+    valor: 0
+    logica: "No migrante → valor 0"
+  - indicador: "desplazamineto"
+    valor: 0
+    logica: "Víctima de conflicto sin desplazamiento → valor 0"
+  - indicador: "educacionregular"
+    valor: 3
+    logica: "Con escolaridad parcial → valor 3"
+  - indicador: "impedimento"
+    valor: 0
+
+paso_dos_indicadores:
+
+  categoria_1:
+    nombre: "Conocimiento Comunitario sobre ESDI"
+    color: "#1B4F72"
+    preguntas:
+
+      - num: 1
+        pregunta: "¿Conoce usted qué es la Explotación Sexual de Niñas, Niños y Adolescentes en Entornos Digitales (ESDI)?"
+        indicador: "Nivel de conocimiento sobre ESDI en el contexto comunitario"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Conoce el concepto en profundidad y puede explicarlo a la comunidad"
+            valor: 0
+          - texto: "Tiene un conocimiento básico del concepto"
+            valor: 1
+          - texto: "No conocía este concepto hasta hoy"
+            valor: 3
+        respuesta_seleccionada: "Tiene un conocimiento básico del concepto"
+        valor: 1
+        justificacion: "Ha escuchado sobre abuso a través de internet en su comunidad pero no conocía el término técnico ESDI."
+
+      - num: 2
+        pregunta: "¿En su comunidad existe conciencia sobre los riesgos que representa el uso de internet para los NNA?"
+        indicador: "Nivel de conciencia comunitaria sobre riesgos digitales en NNA"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Alta conciencia comunitaria con acciones preventivas en curso"
+            valor: 0
+          - texto: "Conciencia limitada, pocas familias conocen el riesgo"
+            valor: 1
+          - texto: "No existe conciencia. Los riesgos digitales no son reconocidos"
+            valor: 3
+        respuesta_seleccionada: "Conciencia limitada, pocas familias conocen el riesgo"
+        valor: 1
+        justificacion: >
+          Las familias saben que 'internet puede ser peligroso' pero no
+          identifican comportamientos específicos de riesgo ni señales de alerta.
+
+      - num: 3
+        pregunta: "¿Conoce usted casos de NNA en su comunidad que puedan estar en situación de riesgo digital?"
+        indicador: "Identificación comunitaria de NNA en posible riesgo de ESDI"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "No conoce ningún caso de posible riesgo digital en su comunidad"
+            valor: 0
+          - texto: "Conoce casos y los ha reportado a las entidades competentes"
+            valor: 1
+          - texto: "Conoce casos pero no los reporta por desconocer cómo hacerlo"
+            valor: 3
+        respuesta_seleccionada: "Conoce casos pero no los reporta por desconocer cómo hacerlo"
+        valor: 3
+        justificacion: >
+          Conoce a tres adolescentes del barrio con características de riesgo
+          (adultos que las visitan, cambios de comportamiento) pero no sabía
+          cómo o a quién reportarlo formalmente.
+
+  categoria_2:
+    nombre: "Capacidades Comunitarias de Prevención"
+    color: "#154360"
+    preguntas:
+
+      - num: 4
+        pregunta: "¿Realiza usted o su organización actividades de prevención o sensibilización sobre ESDI en la comunidad?"
+        indicador: "Actividades preventivas comunitarias realizadas"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Realiza actividades regulares, documentadas con seguimiento"
+            valor: 0
+          - texto: "Ha realizado actividades esporádicas sin plan establecido"
+            valor: 1
+          - texto: "No ha realizado ninguna actividad de prevención"
+            valor: 3
+        respuesta_seleccionada: "Ha realizado actividades esporádicas sin plan establecido"
+        valor: 1
+        justificacion: "Organizó una charla en el puesto de salud hace 6 meses sobre seguridad en internet para madres."
+
+      - num: 5
+        pregunta: "¿Cuenta usted con materiales o herramientas para trabajar la prevención de la ESDI en su comunidad?"
+        indicador: "Disponibilidad de materiales preventivos comunitarios"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Tiene materiales actualizados y los distribuye regularmente"
+            valor: 0
+          - texto: "Tiene materiales limitados o desactualizados"
+            valor: 1
+          - texto: "No cuenta con ningún material preventivo"
+            valor: 3
+        respuesta_seleccionada: "No cuenta con ningún material preventivo"
+        valor: 3
+        justificacion: >
+          Las pocas copias de una guía que recibió de una ONG hace dos años se agotaron.
+          No tiene recursos para imprimir más ni acceso a material digital actualizado.
+
+  categoria_3:
+    nombre: "Articulación con Entidades de Protección"
+    color: "#7B241C"
+    preguntas:
+
+      - num: 6
+        pregunta: "¿Está usted articulado/a con entidades gubernamentales (ICBF, Policía, Alcaldía) para reportar casos de riesgo en NNA?"
+        indicador: "Articulación formal con entidades de protección"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Articulación formal, activa y documentada con varias entidades"
+            valor: 0
+          - texto: "Algunos contactos informales, sin procesos establecidos"
+            valor: 1
+          - texto: "Sin ningún tipo de articulación con entidades de protección"
+            valor: 3
+        respuesta_seleccionada: "Algunos contactos informales, sin procesos establecidos"
+        valor: 1
+        justificacion: "Conoce a una trabajadora social del ICBF pero no hay un proceso establecido de coordinación."
+
+      - num: 7
+        pregunta: "¿Conoce las rutas comunitarias de denuncia disponibles para casos de ESDI en su territorio?"
+        indicador: "Conocimiento de rutas comunitarias de denuncia y atención"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Conoce las rutas y las ha utilizado con éxito"
+            valor: 0
+          - texto: "Conoce algunas rutas pero no el proceso completo"
+            valor: 1
+          - texto: "No conoce ninguna ruta de denuncia o atención"
+            valor: 3
+        respuesta_seleccionada: "Conoce algunas rutas pero no el proceso completo"
+        valor: 1
+        justificacion: "Sabe que puede llamar al ICBF pero no conoce la Línea 141 ni la Policía Cibernética."
+
+  categoria_4:
+    nombre: "Seguimiento y Acompañamiento Comunitario"
+    color: "#145A32"
+    preguntas:
+
+      - num: 8
+        pregunta: "¿Hace seguimiento a los NNA y familias en situación de posible riesgo digital identificados en su comunidad?"
+        indicador: "Capacidad de seguimiento comunitario a casos de riesgo"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Seguimiento sistemático y documentado a todos los casos"
+            valor: 0
+          - texto: "Seguimiento informal a algunos casos"
+            valor: 1
+          - texto: "Sin ningún tipo de seguimiento"
+            valor: 3
+        respuesta_seleccionada: "Seguimiento informal a algunos casos"
+        valor: 1
+        justificacion: "Visita ocasionalmente a las familias que conoce en riesgo pero sin un proceso documentado."
+
+      - num: 9
+        pregunta: "¿Tiene usted o su organización un plan de trabajo comunitario orientado a la prevención de la ESDI?"
+        indicador: "Existencia de plan comunitario de prevención de ESDI"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Plan formalizado con cronograma, indicadores y recursos"
+            valor: 0
+          - texto: "Plan informal o en etapa de formulación"
+            valor: 1
+          - texto: "No existe ningún plan de trabajo en prevención de ESDI"
+            valor: 3
+        respuesta_seleccionada: "No existe ningún plan de trabajo en prevención de ESDI"
+        valor: 3
+        justificacion: "El trabajo es completamente voluntario y sin estructura formal. No hay plan escrito."
+
+      - num: 10
+        pregunta: "¿Existe en su comunidad una red de líderes y actores comprometidos con la protección de NNA en entornos digitales?"
+        indicador: "Red comunitaria activa para la protección de NNA"
+        dirigida_a: "Agente Externo / Comunitario"
+        opciones:
+          - texto: "Red activa con reuniones periódicas y acciones conjuntas"
+            valor: 0
+          - texto: "Red en formación con participación variable"
+            valor: 1
+          - texto: "No existe red comunitaria de protección"
+            valor: 3
+        respuesta_seleccionada: "Red en formación con participación variable"
+        valor: 1
+        justificacion: >
+          Existe un grupo de WhatsApp de líderes comunitarios donde se comparte
+          información sobre protección de NNA, pero las acciones son esporádicas
+          y sin coordinación con entidades formales.
+
+paso_comentario:
+  observaciones: >
+    Líder comunitaria afrocolombiana con alta motivación y reconocimiento en su territorio
+    pero con capacidades técnicas muy limitadas en prevención de ESDI. Trabaja de manera
+    voluntaria sin recursos ni formación específica. Conoce casos reales de NNA en riesgo
+    pero no sabe cómo reportarlos ni activar las rutas de protección.
+    La comunidad enfrenta brechas de conectividad (internet inestable, pocos dispositivos
+    propios) pero los NNA tienen acceso a través de amigos y puntos de internet comunitarios.
+    Se identifican NNA entre 11-16 años con exposición a adultos desconocidos en redes sociales.
+    Recomendación urgente: articulación inmediata con ICBF para los 3 casos identificados
+    y capacitación técnica para la líder y su red comunitaria.
+
+paso_tres_resultados:
+  puntaje_total: 19
+
+  puntajes_por_categoria:
+    - categoria: "Conocimiento Comunitario sobre ESDI"
+      puntaje: 5
+    - categoria: "Capacidades Comunitarias de Prevención"
+      puntaje: 4
+    - categoria: "Articulación con Entidades"
+      puntaje: 2
+    - categoria: "Seguimiento y Acompañamiento"
+      puntaje: 5
+    - indicadores_demograficos: 9
+
+  nivel_riesgo: "BAJO"
+  id_riesgo: 2
+  color_riesgo: "#F4D03F"
+
+  recomendaciones: |
+    1. ARTICULACIÓN URGENTE CON ICBF: Reportar inmediatamente los 3 casos de NNA
+       identificados con posible riesgo. El agente debe acompañar el proceso de denuncia.
+    2. FORMACIÓN TÉCNICA EN ESDI: Incluir a la líder comunitaria en talleres de capacitación
+       del programa ModoSeguro sobre ESDI, señales de alerta y rutas de atención.
+    3. DOTACIÓN DE MATERIALES: Proporcionar materiales físicos y digitales actualizados
+       en formato para distribución comunitaria en zonas con baja conectividad.
+    4. FORMALIZACIÓN DE LA RED COMUNITARIA: Apoyar la estructuración de la red de
+       líderes comunitarios con procesos documentados y vínculos institucionales.
+    5. PLAN DE TRABAJO COMUNITARIO: Construir junto con la líder un plan de acción
+       comunitaria con indicadores de cobertura y seguimiento para 6 meses.
+    6. CAPACITACIÓN EN RUTAS: Taller específico sobre Línea 141, PARD de ICBF,
+       Policía Cibernética y Comisaría de Familia del municipio.

@@ -1,0 +1,337 @@
+# =============================================================================
+# ESCENARIO DE ENTREVISTA COMPLETA — ROL 3: PROFESIONAL DE CAMPO
+# Tipo de entrevista: Versión 2 — Niñas, Niños y Adolescentes (tipo DB: 3)
+# Aplicación: ModoSeguro - VigiatpApp
+# Fecha: 2026-03-19
+# =============================================================================
+
+meta:
+  rol_id: 3
+  rol_nombre: "Profesional de Campo"
+  tipo_entrevista: 3
+  version_entrevista: "Versión 2 — Niñas, Niños y Adolescentes"
+  descripcion_uso: >
+    El Profesional de Campo aplica la Versión 2 a un NNA identificado en una
+    visita domiciliaria en zona rural. El dispositivo operó en modo offline
+    durante toda la jornada. La entrevista se sincronizó al recuperar conexión.
+
+sesion:
+  id_entrevista: "3202503191100"
+  fecha_registro: "2026-03-19 11:00:00"
+  aplicada_por:
+    id_usuario: 47
+    nombre: "Sandra Milena Reyes Pinto"
+    rol: "Profesional de Campo"
+    entidad: "Programa ModoSeguro — Zona Córdoba"
+  estado: "Completa"
+  enviada_servidor: true
+  modo_offline: true
+
+paso_uno_demograficos:
+  id: "3202503191100"
+  fecha_nacimiento: "2014-01-18"
+  edad_calculada: 12
+  genero: "Masculino"
+  zona: "Rural"
+  victima_conflicto: "Sí"
+  desplazamiento: "Sí"
+  migrante: "No"
+  tipo_migracion: null
+  etnia: "No aplica"
+  discapacidad: "No aplica"
+  escolarizado: "Sí"
+  asistencia_regular: "No"
+  grado: "Quinto"
+  nacionalidad: "Colombiana"
+  departamento: "Córdoba"
+  municipio: "Montería"
+
+indicadores_demograficos_calculados:
+  - indicador: "edad"
+    valor: 3
+    logica: "Edad >= 8 años → valor 3"
+  - indicador: "indigena"
+    valor: 0
+    logica: "Sin pertenencia étnica → valor 0"
+  - indicador: "migracion"
+    valor: 0
+    logica: "No migrante → valor 0"
+  - indicador: "desplazamineto"
+    valor: 3
+    logica: "Víctima de desplazamiento → valor 3"
+  - indicador: "educacionregular"
+    valor: 0
+    logica: "No asiste regularmente → valor 0 (factor de riesgo diferente)"
+  - indicador: "impedimento"
+    valor: 0
+    logica: "Sin discapacidad → valor 0"
+
+paso_dos_indicadores:
+
+  categoria_1:
+    nombre: "Acceso y Uso de Tecnología"
+    color: "#1B4F72"
+    preguntas:
+
+      - num: 1
+        pregunta: "¿Tiene el NNA acceso a internet desde su hogar o dispositivos propios?"
+        indicador: "Acceso y disponibilidad de internet"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "No tiene acceso a internet"
+            valor: 0
+          - texto: "Tiene acceso con supervisión de un adulto"
+            valor: 1
+          - texto: "Tiene acceso sin ningún tipo de supervisión"
+            valor: 3
+        respuesta_seleccionada: "Tiene acceso con supervisión de un adulto"
+        valor: 1
+        justificacion: "Tiene acceso al celular de su madre, pero solo con permiso. Usa WhatsApp para mensajear."
+
+      - num: 2
+        pregunta: "¿Cuántas horas diarias pasa el NNA conectado a internet?"
+        indicador: "Tiempo de exposición a internet"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Menos de 1 hora diaria"
+            valor: 0
+          - texto: "Entre 1 y 3 horas diarias"
+            valor: 1
+          - texto: "Más de 3 horas diarias"
+            valor: 3
+        respuesta_seleccionada: "Menos de 1 hora diaria"
+        valor: 0
+        justificacion: "Acceso limitado. El celular es compartido y la conexión en zona rural es inestable."
+
+      - num: 3
+        pregunta: "¿Qué tipo de dispositivos digitales utiliza el NNA con mayor frecuencia?"
+        indicador: "Tipo de dispositivo y nivel de exposición"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Solo dispositivos del colegio o casa sin internet propio"
+            valor: 0
+          - texto: "Tablet o computador con internet supervisado"
+            valor: 1
+          - texto: "Smartphone propio con plan de datos y sin filtros"
+            valor: 3
+        respuesta_seleccionada: "Solo dispositivos del colegio o casa sin internet propio"
+        valor: 0
+        justificacion: "No tiene dispositivo propio. Solo accede al celular de la madre con permiso."
+
+  categoria_2:
+    nombre: "Redes Sociales y Plataformas"
+    color: "#154360"
+    preguntas:
+
+      - num: 4
+        pregunta: "¿Tiene el NNA perfiles activos en redes sociales o plataformas de videojuegos?"
+        indicador: "Presencia en redes sociales"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "No tiene ningún perfil en redes sociales"
+            valor: 0
+          - texto: "Tiene perfiles con supervisión de adultos"
+            valor: 1
+          - texto: "Tiene perfiles sin ninguna supervisión adulta"
+            valor: 3
+        respuesta_seleccionada: "No tiene ningún perfil en redes sociales"
+        valor: 0
+        justificacion: "Solo usa WhatsApp para comunicarse con familiares. No tiene otras redes sociales."
+
+      - num: 5
+        pregunta: "¿Sus perfiles en redes están configurados como públicos o privados?"
+        indicador: "Configuración de privacidad en redes sociales"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Todos sus perfiles están configurados como privados"
+            valor: 0
+          - texto: "Algunos privados y otros públicos"
+            valor: 1
+          - texto: "Perfiles públicos con mensajes de desconocidos"
+            valor: 3
+        respuesta_seleccionada: "Todos sus perfiles están configurados como privados"
+        valor: 0
+        justificacion: "Solo WhatsApp sin perfil público. No recibe mensajes de desconocidos."
+
+      - num: 6
+        pregunta: "¿Ha aceptado solicitudes de contacto de personas desconocidas en redes?"
+        indicador: "Contacto con personas desconocidas en redes"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Nunca ha aceptado contacto de desconocidos"
+            valor: 0
+          - texto: "Ha aceptado en alguna ocasión"
+            valor: 1
+          - texto: "Acepta regularmente contacto de personas desconocidas"
+            valor: 3
+        respuesta_seleccionada: "Ha aceptado en alguna ocasión"
+        valor: 1
+        justificacion: "Un familiar lejano que no conoce personalmente le envió solicitud de amistad. La aceptó."
+
+      - num: 7
+        pregunta: "¿El NNA comparte información personal en internet?"
+        indicador: "Exposición de información personal en línea"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "No comparte información personal"
+            valor: 0
+          - texto: "Comparte solo con personas conocidas"
+            valor: 1
+          - texto: "Comparte información abiertamente o con desconocidos"
+            valor: 3
+        respuesta_seleccionada: "No comparte información personal"
+        valor: 0
+        justificacion: "No tiene conciencia clara del concepto de privacidad pero no comparte datos."
+
+  categoria_3:
+    nombre: "Factores de Riesgo de Explotación Digital"
+    color: "#7B241C"
+    preguntas:
+
+      - num: 8
+        pregunta: "¿Algún adulto desconocido le ha enviado mensajes por internet?"
+        indicador: "Contacto de adultos desconocidos vía internet"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "No ha ocurrido"
+            valor: 0
+          - texto: "Ha ocurrido y lo reportó a un adulto"
+            valor: 1
+          - texto: "Ocurre con frecuencia sin que lo reporte"
+            valor: 3
+        respuesta_seleccionada: "No ha ocurrido"
+        valor: 0
+        justificacion: "Uso muy limitado. Sin exposición a mensajes de extraños."
+
+      - num: 9
+        pregunta: "¿Alguien le ha pedido fotos, videos o información íntima por internet?"
+        indicador: "Solicitudes de contenido íntimo"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Nunca le han pedido ese tipo de contenido"
+            valor: 0
+          - texto: "Le han pedido pero lo rechazó sin reportarlo"
+            valor: 1
+          - texto: "Le han pedido y lo considera normal o lo ha hecho"
+            valor: 3
+        respuesta_seleccionada: "Nunca le han pedido ese tipo de contenido"
+        valor: 0
+        justificacion: "No ha tenido exposición a este tipo de solicitudes."
+
+      - num: 10
+        pregunta: "¿Algún adulto le ha ofrecido regalos, dinero u otros beneficios a través de internet?"
+        indicador: "Ofrecimiento de beneficios por adultos"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Nunca ha recibido ese tipo de ofertas"
+            valor: 0
+          - texto: "Ha recibido una oferta y la rechazó o reportó"
+            valor: 1
+          - texto: "Ha recibido o aceptado ofrecimientos de adultos desconocidos"
+            valor: 3
+        respuesta_seleccionada: "Nunca ha recibido ese tipo de ofertas"
+        valor: 0
+        justificacion: "Sin exposición a este tipo de manipulación."
+
+      - num: 11
+        pregunta: "¿El NNA ha enviado o recibido contenido sexual a través de internet?"
+        indicador: "Exposición a sexting"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "No ha tenido ninguna experiencia de este tipo"
+            valor: 0
+          - texto: "Ha recibido pero no ha enviado"
+            valor: 1
+          - texto: "Ha enviado y/o recibido en alguna ocasión"
+            valor: 3
+        respuesta_seleccionada: "No ha tenido ninguna experiencia de este tipo"
+        valor: 0
+        justificacion: "Sin experiencia de este tipo. Uso de internet muy restringido."
+
+  categoria_4:
+    nombre: "Factores Protectores y Red de Apoyo"
+    color: "#145A32"
+    preguntas:
+
+      - num: 12
+        pregunta: "¿Sus padres o cuidadores supervisan el uso de internet del NNA?"
+        indicador: "Supervisión adulta del acceso a internet"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Supervisión activa y regular con normas claras"
+            valor: 0
+          - texto: "Supervisión ocasional"
+            valor: 1
+          - texto: "Sin ningún tipo de supervisión"
+            valor: 3
+        respuesta_seleccionada: "Supervisión activa y regular con normas claras"
+        valor: 0
+        justificacion: "La madre controla el uso del celular. No puede usarlo sin permiso."
+
+      - num: 13
+        pregunta: "¿El NNA sabe a quién acudir si algo en internet le hace sentir en peligro?"
+        indicador: "Conocimiento de redes de apoyo ante riesgos digitales"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Sí, conoce adultos de confianza y sabe a quién acudir"
+            valor: 0
+          - texto: "No está completamente seguro de a quién acudir"
+            valor: 1
+          - texto: "No sabe a quién acudir"
+            valor: 3
+        respuesta_seleccionada: "No está completamente seguro de a quién acudir"
+        valor: 1
+        justificacion: "Sabe que puede hablar con su mamá pero no conoce otras redes o entidades de ayuda."
+
+      - num: 14
+        pregunta: "¿Ha recibido información sobre seguridad digital en el colegio o en casa?"
+        indicador: "Acceso a educación en seguridad digital"
+        dirigida_a: "Niño"
+        opciones:
+          - texto: "Regularmente en el colegio y en casa"
+            valor: 0
+          - texto: "Alguna información esporádica"
+            valor: 1
+          - texto: "No ha recibido ninguna información"
+            valor: 3
+        respuesta_seleccionada: "No ha recibido ninguna información"
+        valor: 3
+        justificacion: "No asiste regularmente al colegio. En casa no se aborda el tema. Desconoce los riesgos."
+
+paso_comentario:
+  observaciones: >
+    NNA en zona rural con acceso limitado y supervisado a internet. No presenta factores
+    de riesgo activos de ESDI pero sí factores de vulnerabilidad estructural: víctima de
+    desplazamiento, sin asistencia escolar regular, sin educación en seguridad digital.
+    La ausencia de conocimiento sobre riesgos digitales y rutas de apoyo representa
+    un riesgo preventivo que debe atenderse. Se recomienda intervención de fortalecimiento
+    de habilidades protectoras. Redes sociales identificadas: WhatsApp familiar.
+    No usa TikTok, Instagram ni videojuegos online.
+
+paso_tres_resultados:
+  puntaje_total: 11
+
+  puntajes_por_categoria:
+    - categoria: "Acceso y Uso de Tecnología"
+      puntaje: 1
+    - categoria: "Redes Sociales y Plataformas"
+      puntaje: 1
+    - categoria: "Factores de Riesgo Digital"
+      puntaje: 0
+    - categoria: "Factores Protectores"
+      puntaje: 4
+    - indicadores_demograficos: 6
+
+  nivel_riesgo: "BAJO"
+  id_riesgo: 2
+  color_riesgo: "#F4D03F"
+
+  recomendaciones: |
+    1. EDUCACIÓN EN SEGURIDAD DIGITAL: Trabajar con el NNA y su familia en conceptos
+       básicos de seguridad digital y reconocimiento de riesgos en internet.
+    2. CONTINUIDAD ESCOLAR: Gestionar la matrícula activa y la asistencia regular al colegio
+       como factor protector fundamental.
+    3. FORTALECIMIENTO DE HABILIDADES PROTECTORAS: Trabajar con el NNA la identificación
+       de situaciones de riesgo y las rutas de apoyo disponibles.
+    4. SEGUIMIENTO PERIÓDICO: Visita de seguimiento en 2 meses para valorar cambios
+       en el acceso y uso de tecnología.

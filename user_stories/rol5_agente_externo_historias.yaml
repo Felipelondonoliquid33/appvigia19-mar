@@ -1,0 +1,361 @@
+# =============================================================================
+# HISTORIAS DE USUARIO — ROL 5: AGENTE EXTERNO
+# Aplicación: ModoSeguro - VigiatpApp
+# Proyecto:   Educa Digital / OIM / ICBF
+# Fecha:      2026-03-19
+# =============================================================================
+
+meta:
+  proyecto: "ModoSeguro – VigiatpApp"
+  version_app: "2026.03"
+  fecha_generacion: "2026-03-19"
+  rol_id: 5
+  rol_nombre: "Agente Externo"
+  autor: "GitHub Copilot – Educa Digital"
+
+rol:
+  nombre: "Agente Externo / Agente Educativo"
+  descripcion: >
+    El Agente Externo (también llamado Agente Educativo en el formulario de registro)
+    es el usuario con el perfil MÁS RESTRINGIDO de la aplicación. Solo tiene autorización
+    para aplicar UN tipo de entrevista: la Versión 4 — Agentes Externos. Este perfil
+    corresponde a líderes comunitarios, representantes de ONGs, mediadores locales
+    y actores educativos externos al sistema institucional formal.
+    Solo puede ver sus propias entrevistas en el historial.
+    Puede auto-registrarse desde la app eligiendo el rol 'Agente Educativo'.
+  nivel_superusuario: false
+  tipos_entrevista_permitidos:
+    - id: 2
+      nombre: "Versión 4 — Niñas, Niños, Adolescentes, Cuidadores y Padres de Familia"
+      nota: "ÚNICO tipo de entrevista disponible para este rol"
+  tipos_entrevista_bloqueados:
+    - id: 1
+      nombre: "Versión 3 — Funcionarios Públicos"
+      razon: "Exclusiva para Roles 1, 2, 3 y 4"
+    - id: 3
+      nombre: "Versión 2 — Niñas, Niños y Adolescentes"
+      razon: "Exclusiva para Roles 1, 2, 3 y 4"
+    - id: 4
+      nombre: "Versión 1 — Madres, padres y cuidadores"
+      razon: "Exclusiva para Roles 1, 2, 3 y 4"
+  restricciones:
+    - "Solo puede usar la Versión 4 — Agentes Externos (canShow([5])=TRUE)"
+    - "Todas las demás versiones le son invisibles en EntrevistaScreen"
+    - "Solo visualiza sus propias entrevistas en el historial"
+    - "No tiene nivel de superusuario (nivel_superusuario=false)"
+    - "Acceso bloqueado a estadísticas de otros usuarios"
+
+epicas:
+  - id: "EP-01"
+    nombre: "Registro y Autenticación Comunitaria"
+  - id: "EP-02"
+    nombre: "Acceso al Panel Principal"
+  - id: "EP-03"
+    nombre: "Aplicación de la Entrevista Autorizada"
+  - id: "EP-04"
+    nombre: "Gestión de Mis Entrevistas"
+  - id: "EP-05"
+    nombre: "Materiales y Recursos Comunitarios"
+  - id: "EP-06"
+    nombre: "Resultados de Mis Evaluaciones"
+  - id: "EP-07"
+    nombre: "Seguridad y Control de Acceso"
+
+historias:
+
+  # ── EP-01 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL5-001"
+    epica: "EP-01"
+    titulo: "Registrarme en la aplicación como Agente Educativo comunitario"
+    pantalla: "CrearScreen"
+    narrativa:
+      como: "Líder comunitario o actor educativo externo que participa en el programa"
+      quiero: "crear mi cuenta en la aplicación seleccionando el rol de Agente Educativo"
+      para: "obtener acceso al instrumento de evaluación asignado para mi perfil"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a la pantalla de Crear Cuenta desde Login"
+        cuando: "Completo el formulario de registro"
+        entonces: >
+          Puedo seleccionar 'Agente Educativo' (Rol 5) en el campo de Rol.
+          El formulario acepta mis datos y envía instrucciones de activación a mi correo.
+      - dado: "No acepto los términos y condiciones"
+        cuando: "Veo el formulario"
+        entonces: "El botón Registrarme está deshabilitado y no puedo enviar el formulario"
+      - dado: "Mi contraseña no cumple los requisitos de seguridad"
+        cuando: "Presiono Registrarme"
+        entonces: >
+          El sistema me informa los requisitos de contraseña segura:
+          8+ caracteres, mayúscula, minúscula, número, carácter especial
+    casos_prueba: []
+    notas: >
+      El Agente Educativo puede auto-registrarse junto con el Rol 4 (Funcionario Externo).
+      Los datos del formulario incluyen: nombre, apellidos, correo, teléfono (+57),
+      institución/entidad, rol, contraseña confirmada y términos.
+
+  - id: "US-ROL5-002"
+    epica: "EP-01"
+    titulo: "Iniciar sesión como Agente Externo desde mi comunidad"
+    pantalla: "LoginScreen"
+    narrativa:
+      como: "Agente Externo que trabaja en zonas con conectividad variable"
+      quiero: "autenticarme en la aplicación con mis credenciales de Agente Educativo"
+      para: "acceder al instrumento de evaluación comunitaria y registrar mis sesiones"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Tengo una cuenta activada con Rol 5"
+        cuando: "Ingreso mis credenciales correctas"
+        entonces: "Accedo al Dashboard de la aplicación"
+      - dado: "No hay internet pero ya inicié sesión antes en el dispositivo"
+        cuando: "Ingreso mis credenciales"
+        entonces: "Puedo entrar en modo offline (la conectividad no es un requisito en campo comunitario)"
+    casos_prueba: ["TC-ROL5-002", "TC-USR5-002", "TC-USR5-003", "TC-USR5-004"]
+    notas: "En comunidades rurales o de difícil acceso, el modo offline es esencial para el trabajo."
+
+  # ── EP-02 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL5-003"
+    epica: "EP-02"
+    titulo: "Acceder al panel principal con mis herramientas disponibles"
+    pantalla: "HomeScreen"
+    narrativa:
+      como: "Agente Externo autenticado"
+      quiero: "ver el panel principal con las opciones disponibles para mí"
+      para: "navegar a mi herramienta principal: el Formulario de Entrevista"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Inicio sesión correctamente"
+        cuando: "Se carga HomeScreen"
+        entonces: >
+          Veo el panel con los 4 accesos. Cuando ingrese a Formulario de Entrevista,
+          solo veré la Versión 4 — mi única entrevista autorizada.
+    casos_prueba: []
+    notas: "El Dashboard muestra los mismos 4 accesos para todos los roles."
+
+  # ── EP-03 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL5-004"
+    epica: "EP-03"
+    titulo: "Ver únicamente la Versión 4 en la pantalla de entrevistas"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Agente Externo que accede a su único instrumento de trabajo"
+      quiero: "que la pantalla de Entrevistas muestre solo la versión que me corresponde"
+      para: "evitar confusiones y trabajar exclusivamente dentro de mi ámbito de competencia"
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a EntrevistaScreen como Agente Externo (Rol 5)"
+        cuando: "Se carga la pantalla"
+        entonces: >
+          Solo veo la tarjeta de la Versión 4 (Agentes Externos).
+          Las tarjetas de V1, V2 y V3 NO aparecen en pantalla.
+      - dado: "Hay 4 tipos de entrevista en la base de datos"
+        cuando: "El sistema evalúa mis permisos con canShow"
+        entonces: "canShow([5])=TRUE para tipo 2 y FALSE para tipos 1, 3 y 4"
+    casos_prueba: ["TC-ROL5-001", "TC-ROL5-002", "TC-ROL5-003", "TC-ROL5-004",
+                   "TC-ENT5-001", "TC-ENT5-002", "TC-ENT5-003", "TC-ENT5-004"]
+    notas: "La Versión 4 usa canShow([5]) que incluye a Agente Externo (5) y también a roles 1 y 2 por bypass."
+
+  - id: "US-ROL5-005"
+    epica: "EP-03"
+    titulo: "Aplicar la entrevista completa como Agente Externo Comunitario"
+    pantalla: "EntrevistaScreen → InstruccionScreen → AsentimientoScreen → PasoUno → PasosDos → PasoComentario → PasoTres"
+    narrativa:
+      como: "Agente Externo en jornada comunitaria con NNA, cuidadores o padres de familia"
+      quiero: >
+        aplicar la Versión 4 completa: leer instrucciones, obtener asentimiento,
+        registrar datos demográficos, responder todas las preguntas, anotar observaciones y ver resultados
+      para: >
+        evaluar los factores de riesgo de explotación sexual digital en la comunidad
+        y orientar a las personas sobre protocolos de protección
+    prioridad: "Crítica"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Selecciono la Versión 4 en EntrevistaScreen"
+        cuando: "El participante acepta el asentimiento informado"
+        entonces: "Se crea el registro de entrevista y navego a PasoUno para datos demográficos"
+      - dado: "Estoy en PasoDos con las preguntas del instrumento"
+        cuando: "Respondo cada pregunta seleccionando una de las opciones"
+        entonces: "El progreso avanza visualmente y cada respuesta se guarda automáticamente"
+      - dado: "Llego al último indicador"
+        cuando: "Presiono Siguiente"
+        entonces: "Navego a PasoComentario para registrar observaciones finales"
+      - dado: "Confirmo la finalización"
+        cuando: "Presiono Sí, finalizar"
+        entonces: >
+          La entrevista queda Completa. Se calculan puntajes y nivel de riesgo.
+          Navego a PasoTres con los resultados.
+    casos_prueba: ["TC-ENT5-005"]
+    notas: >
+      El flujo completo de la Versión 4 es idéntico al de otras versiones en términos técnicos.
+      La diferencia es el CONTENIDO del instrumento (preguntas adaptadas para agentes comunitarios)
+      y los datos demográficos del tipo de participante evaluado.
+
+  - id: "US-ROL5-006"
+    epica: "EP-03"
+    titulo: "Registrar la negativa a participar (rechazo del asentimiento)"
+    pantalla: "AsentimientoScreen → ConsentimientoRechazadoScreen"
+    narrativa:
+      como: "Agente Externo respetuoso de la autonomía del participante"
+      quiero: "registrar cuando un participante rechaza el asentimiento informado"
+      para: "documentar el rechazo y recibir orientaciones sobre cómo proceder"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "El participante no desea participar en la evaluación"
+        cuando: "Presiona Rechazar en AsentimientoScreen"
+        entonces: >
+          Navego a ConsentimientoRechazadoScreen con el mensaje:
+          'NO ES POSIBLE CONTINUAR' y opciones: Volver al consentimiento / Salir
+      - dado: "El participante cambia de opinión"
+        cuando: "Presiona Volver al consentimiento"
+        entonces: "Regresa a AsentimientoScreen para intentar nuevamente"
+    casos_prueba: []
+    notas: "El rechazo debe ser respetado. La app no permite continuar sin asentimiento explícito."
+
+  # ── EP-07: Seguridad ─────────────────────────────────────────────────────
+  - id: "US-ROL5-007"
+    epica: "EP-07"
+    titulo: "Confirmar que tengo acceso bloqueado a entrevistas de otros roles"
+    pantalla: "EntrevistaScreen"
+    narrativa:
+      como: "Agente Externo consciente de mis límites de acceso"
+      quiero: "verificar que el sistema me impide acceder a entrevistas que no son de mi competencia"
+      para: "garantizar la integridad del programa y el uso correcto de los instrumentos"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Soy Agente Externo (rolId=5) y accedo a EntrevistaScreen"
+        cuando: "El sistema evalúa mis permisos"
+        entonces: >
+          Las tarjetas de V1 (Padres/Cuidadores), V2 (NNA) y V3 (Funcionarios)
+          no aparecen. Solo veo la V4 (Agentes Externos).
+      - dado: "Se intenta acceder por URI directa a PasoUno con tipo 1, 3 o 4"
+        cuando: "El sistema verifica el rol"
+        entonces: "El acceso es bloqueado automáticamente"
+    casos_prueba: ["TC-BLOCK5-001", "TC-BLOCK5-002", "TC-BLOCK5-003",
+                   "TC-ROL5-001", "TC-ROL5-003", "TC-ROL5-004"]
+    notas: >
+      La seguridad de acceso se implementa en canShow() en EntrevistaScreen.
+      El sistema nunca expone datos de entrevistas de otros tipos o usuarios.
+
+  # ── EP-04 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL5-008"
+    epica: "EP-04"
+    titulo: "Ver solo mis entrevistas de Agentes Externos en el historial"
+    pantalla: "ListadoEntrevistasScreen"
+    narrativa:
+      como: "Agente Externo revisando su actividad en la comunidad"
+      quiero: "consultar el historial de mis evaluaciones aplicadas como Agente Externo"
+      para: "hacer seguimiento a las personas evaluadas en mi área de trabajo comunitario"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo al historial de entrevistas"
+        cuando: "Se carga el listado"
+        entonces: >
+          Solo veo las entrevistas de tipo Versión 4 (Agentes Externos) realizadas por mí.
+          No aparecen entrevistas de otros usuarios ni de otros tipos.
+    casos_prueba: ["TC-LISTADO5-001", "TC-LISTADO5-002"]
+    notas: "El historial filtra por idUsuario y tipo de entrevista. La privacidad es absoluta."
+
+  # ── EP-06 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL5-009"
+    epica: "EP-06"
+    titulo: "Ver y compartir los resultados de mi evaluación comunitaria"
+    pantalla: "PasoTresScreen"
+    narrativa:
+      como: "Agente Externo que comunica resultados a la comunidad"
+      quiero: "ver los resultados de la evaluación en lenguaje claro y exportarlos"
+      para: "comunicar a las familias y autoridades comunitarias el nivel de riesgo identificado"
+    prioridad: "Alta"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Completé una evaluación de Agente Externo"
+        cuando: "Veo los resultados en PasoTresScreen"
+        entonces: >
+          Veo: puntajes por categoría (conocimiento comunitario, capacidades preventivas,
+          articulación institucional), nivel de riesgo general y recomendaciones específicas
+      - dado: "Necesito documento para presentar a la comunidad"
+        cuando: "Presiono Descargar"
+        entonces: "Se genera un Excel con los resultados para presentar y archivar"
+    casos_prueba: []
+    notas: "Las recomendaciones se generan automáticamente según el nivel de riesgo calculado."
+
+  # ── EP-05 ─────────────────────────────────────────────────────────────────
+  - id: "US-ROL5-010"
+    epica: "EP-05"
+    titulo: "Consultar materiales y rutas de atención comunitarias"
+    pantalla: "MaterialesConsultaScreen / RutasScreen"
+    narrativa:
+      como: "Agente Externo que apoya a familias en riesgo"
+      quiero: "acceder a materiales de prevención y rutas de atención para compartir con la comunidad"
+      para: "fortalecer la capacidad de respuesta comunitaria ante situaciones de ESDI"
+    prioridad: "Media"
+    estado: "Implementada ✅"
+    criterios_aceptacion:
+      - dado: "Accedo a Materiales o Canales y Reporte"
+        cuando: "Se cargan los recursos"
+        entonces: >
+          Veo materiales sobre ciberacoso, explotación digital, rutas de reporte al ICBF,
+          líneas de atención (141) y protocolos de acompañamiento comunitario
+    casos_prueba: []
+    notas: "Todos los roles tienen acceso igual a materiales y rutas. No hay restricciones aquí."
+
+escenarios_casos_uso:
+  - id: "UC-ROL5-001"
+    titulo: "Jornada comunitaria: aplicar Versión 4 a líder comunitario"
+    actor: "Agente Externo (rolId: 5) — Líder Comunitaria"
+    precondicion: "Usuario registrado. Zona rural con internet ocasional."
+    flujo_principal:
+      - paso: 1
+        accion: "Abre la app e inicia sesión (modo offline si no hay internet)"
+        resultado: "Dashboard disponible con sus herramientas"
+      - paso: 2
+        accion: "Toca Formulario de Entrevista"
+        resultado: "EntrevistaScreen muestra SOLO la Versión 4 — Agentes Externos"
+      - paso: 3
+        accion: "Toca la tarjeta de Versión 4"
+        resultado: "Navega a InstruccionScreen con las instrucciones del instrumento"
+      - paso: 4
+        accion: "Lee las instrucciones y toca Continuar"
+        resultado: "Navega a AsentimientoScreen"
+      - paso: 5
+        accion: "El participante acepta la evaluación. Toca Aceptar."
+        resultado: "Registro creado. Navega a PasoUnoScreen"
+      - paso: 6
+        accion: "Completa datos demográficos del participante"
+        resultado: "Datos guardados localmente. Avanza a PasoDos"
+      - paso: 7
+        accion: "Responde 10 preguntas del instrumento comunitario"
+        resultado: "Progreso visible en barra. Respuestas guardadas en SQLite"
+      - paso: 8
+        accion: "Registra observaciones sobre la situación comunitaria"
+        resultado: "Observaciones guardadas"
+      - paso: 9
+        accion: "Confirma la finalización de la entrevista"
+        resultado: "Entrevista Completa. Puntajes calculados. Ve resultados"
+      - paso: 10
+        accion: "Descarga el reporte Excel para presentar a la comunidad"
+        resultado: "Reporte generado. Cuando haya internet, se envía al servidor."
+    postcondicion: >
+      Evaluación comunitaria completa. Archivada localmente.
+      Sincronización automática al recuperar conectividad.
+
+  - id: "UC-ROL5-002"
+    titulo: "Intento fallido: un Agente intenta acceder a entrevistas no autorizadas"
+    actor: "Agente Externo (rolId: 5)"
+    precondicion: "Usuario autenticado como Rol 5"
+    flujo_principal:
+      - paso: 1
+        accion: "Accede a la sección de Entrevistas"
+        resultado: "EntrevistaScreen muestra solo 1 tarjeta (Versión 4)"
+      - paso: 2
+        accion: "Intenta navegar manualmente a una pantalla de V1, V2 o V3"
+        resultado: "El sistema evalúa canShow() y bloquea el acceso"
+      - paso: 3
+        accion: "Solo puede proceder con la Versión 4"
+        resultado: "El sistema garantiza el uso correcto de los instrumentos"
+    postcondicion: "Seguridad de acceso validada. Rol 5 operando dentro de sus límites autorizados."

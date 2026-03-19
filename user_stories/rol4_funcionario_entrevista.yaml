@@ -1,0 +1,253 @@
+# =============================================================================
+# ESCENARIO DE ENTREVISTA COMPLETA — ROL 4: FUNCIONARIO
+# Tipo de entrevista: Versión 3 — Funcionarios Públicos (tipo DB: 1)
+# Aplicación: ModoSeguro - VigiatpApp
+# Fecha: 2026-03-19
+# =============================================================================
+
+meta:
+  rol_id: 4
+  rol_nombre: "Funcionario"
+  tipo_entrevista: 1
+  version_entrevista: "Versión 3 — Funcionarios Públicos"
+  descripcion_uso: >
+    El Funcionario (orientadora escolar) aplica la Versión 3 a un docente de
+    su institución educativa para evaluar el nivel de conocimiento institucional
+    sobre ESDI y la capacidad de respuesta ante casos identificados.
+
+sesion:
+  id_entrevista: "4202503190930"
+  fecha_registro: "2026-03-19 09:30:00"
+  aplicada_por:
+    id_usuario: 63
+    nombre: "Patricia Lozano Herrera"
+    rol: "Funcionario"
+    entidad: "IE Simón Bolívar — Cali, Valle del Cauca"
+  estado: "Completa"
+  enviada_servidor: true
+
+paso_uno_demograficos:
+  id: "4202503190930"
+  fecha_nacimiento: "1979-11-05"
+  edad_calculada: 46
+  genero: "Masculino"
+  zona: "Urbano"
+  victima_conflicto: "No"
+  desplazamiento: null
+  migrante: "No"
+  tipo_migracion: null
+  etnia: "No aplica"
+  discapacidad: "No aplica"
+  escolarizado: "Sí"
+  asistencia_regular: null
+  grado: "Educación superior completa"
+  nacionalidad: "Colombiana"
+  departamento: "Valle del Cauca"
+  municipio: "Cali"
+
+indicadores_demograficos_calculados:
+  - indicador: "edad"
+    valor: 3
+    logica: "Adulto en rango de evaluación → valor 3"
+  - indicador: "indigena"
+    valor: 0
+  - indicador: "migracion"
+    valor: 0
+  - indicador: "desplazamineto"
+    valor: 0
+  - indicador: "educacionregular"
+    valor: 3
+    logica: "Con educación superior → valor 3"
+  - indicador: "impedimento"
+    valor: 0
+
+paso_dos_indicadores:
+
+  categoria_1:
+    nombre: "Conocimiento sobre ESDI"
+    color: "#154360"
+    preguntas:
+
+      - num: 1
+        pregunta: "¿Conoce usted qué es la Explotación Sexual de NNA en Entornos Digitales (ESDI)?"
+        indicador: "Nivel de conocimiento sobre ESDI"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "Tiene conocimiento amplio y actualizado sobre el concepto"
+            valor: 0
+          - texto: "Tiene un conocimiento básico del concepto"
+            valor: 1
+          - texto: "Desconoce el concepto de ESDI"
+            valor: 3
+        respuesta_seleccionada: "Tiene un conocimiento básico del concepto"
+        valor: 1
+        justificacion: "Ha escuchado el término en capacitaciones generales pero no tiene formación específica."
+
+      - num: 2
+        pregunta: "¿Ha recibido capacitación especializada en identificación y prevención de trata de personas con fines de explotación sexual?"
+        indicador: "Capacitación recibida en trata y explotación sexual"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "Capacitación reciente, específica y completa en el tema"
+            valor: 0
+          - texto: "Capacitación básica o desactualizada (más de 2 años)"
+            valor: 1
+          - texto: "Sin capacitación en el tema"
+            valor: 3
+        respuesta_seleccionada: "Capacitación básica o desactualizada (más de 2 años)"
+        valor: 1
+        justificacion: "Asistió a una jornada del MEN hace 3 años sobre abuso sexual. No específica en digital."
+
+      - num: 3
+        pregunta: "¿Conoce las señales de alerta que puede presentar un NNA que podría estar siendo víctima de explotación sexual digital?"
+        indicador: "Reconocimiento de señales de alerta en NNA"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "Identifica claramente las señales de alerta (conductuales, emocionales, etc.)"
+            valor: 0
+          - texto: "Conoce algunas señales pero no las identifica completamente"
+            valor: 1
+          - texto: "No conoce las señales de alerta de ESDI"
+            valor: 3
+        respuesta_seleccionada: "Conoce algunas señales pero no las identifica completamente"
+        valor: 1
+        justificacion: "Puede identificar cambios conductuales generales pero los asocia más a problemas familiares que a riesgo digital."
+
+  categoria_2:
+    nombre: "Capacidad Institucional de Detección"
+    color: "#1A5276"
+    preguntas:
+
+      - num: 4
+        pregunta: "¿Cuenta su institución con un protocolo oficial de atención a víctimas de trata de personas o ESDI?"
+        indicador: "Existencia de protocolos institucionales actualizados"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "Protocolo actualizado, socializado y conocido por todos"
+            valor: 0
+          - texto: "Existe un protocolo pero está desactualizado o poco conocido"
+            valor: 1
+          - texto: "No existe ningún protocolo en la institución"
+            valor: 3
+        respuesta_seleccionada: "Existe un protocolo pero está desactualizado o poco conocido"
+        valor: 1
+        justificacion: "Hay un manual de convivencia con un capítulo general de abuso, pero no incluye ESDI específicamente."
+
+      - num: 5
+        pregunta: "¿Ha identificado o atendido casos sospechosos o confirmados de ESDI en su institución en el último año?"
+        indicador: "Experiencia en identificación y atención de casos de ESDI"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "Ha identificado casos y activó correctamente la ruta de atención"
+            valor: 0
+          - texto: "Ha identificado posibles casos pero no activó el protocolo completo"
+            valor: 1
+          - texto: "No ha identificado ningún caso de ESDI"
+            valor: 3
+        respuesta_seleccionada: "Ha identificado posibles casos pero no activó el protocolo completo"
+        valor: 1
+        justificacion: "Detectó cambios en dos estudiantes pero los gestionó solo con los padres sin reportar al ICBF."
+
+      - num: 6
+        pregunta: "¿Existe en su institución coordinación interinstitucional activa con ICBF, Policía u otras entidades para la atención de ESDI?"
+        indicador: "Coordinación interinstitucional activa"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "Coordinación activa, documentada y con contactos directos establecidos"
+            valor: 0
+          - texto: "Coordinación informal o esporádica sin procesos establecidos"
+            valor: 1
+          - texto: "No hay ningún tipo de coordinación interinstitucional"
+            valor: 3
+        respuesta_seleccionada: "Coordinación informal o esporádica sin procesos establecidos"
+        valor: 1
+        justificacion: "Conoce el número de ICBF pero no tiene contacto directo ni proceso formalizado de coordinación."
+
+  categoria_3:
+    nombre: "Conocimiento de Rutas de Atención"
+    color: "#1E8449"
+    preguntas:
+
+      - num: 7
+        pregunta: "¿Conoce usted las rutas de denuncia y atención disponibles para casos de explotación sexual digital?"
+        indicador: "Conocimiento completo de rutas de atención"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "Conoce completamente las rutas y sabe cómo usarlas"
+            valor: 0
+          - texto: "Conoce parcialmente las rutas pero no el proceso completo"
+            valor: 1
+          - texto: "Desconoce las rutas de atención"
+            valor: 3
+        respuesta_seleccionada: "Conoce parcialmente las rutas pero no el proceso completo"
+        valor: 1
+        justificacion: "Conoce la Línea 141 y la comisaría de familia pero no los pasos del PARD ni la Policía Cibernética."
+
+      - num: 8
+        pregunta: "¿El personal docente y directivo de su institución está capacitado para identificar y remitir casos de ESDI?"
+        indicador: "Capacidad del equipo docente en gestión de casos"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "El equipo está plenamente capacitado con formación actual"
+            valor: 0
+          - texto: "Parte del personal tiene capacitación básica"
+            valor: 1
+          - texto: "El personal no tiene capacitación en el tema"
+            valor: 3
+        respuesta_seleccionada: "Parte del personal tiene capacitación básica"
+        valor: 1
+        justificacion: "Solo orientación y coordinación tienen algún nivel de formación. El 90% del cuerpo docente no."
+
+      - num: 9
+        pregunta: "¿Su institución ha realizado o gestiona actividades de prevención de ESDI con estudiantes y familias?"
+        indicador: "Actividades preventivas institucionales orientadas a NNA y familias"
+        dirigida_a: "Funcionario Público / Docente"
+        opciones:
+          - texto: "Actividades preventivas regulares y documentadas con buen cubrimiento"
+            valor: 0
+          - texto: "Actividades esporádicas sin seguimiento ni documentación"
+            valor: 1
+          - texto: "No se han realizado actividades de prevención"
+            valor: 3
+        respuesta_seleccionada: "Actividades esporádicas sin seguimiento ni documentación"
+        valor: 1
+        justificacion: "Hubo una charla en el día de la familia del año pasado. Sin programación sistemática."
+
+paso_comentario:
+  observaciones: >
+    Docente de bachillerato con 18 años de experiencia en la institución. Tiene disposición
+    para aprender y mejorar pero la institución no ha priorizado la formación en ESDI.
+    La institución no tiene protocolo específico para explotación digital y la coordinación
+    con entidades de protección es informal. Se identifica una brecha importante entre la
+    capacidad de detección individual del funcionario y la respuesta institucional organizada.
+    El docente reconoce haber identificado al menos 2 estudiantes en situación de posible riesgo
+    en el último año, pero gestionó los casos sin activar correctamente la ruta de atención.
+    Herramientas digitales de la institución: sala de informática compartida sin filtros de contenido.
+
+paso_tres_resultados:
+  puntaje_total: 16
+
+  puntajes_por_categoria:
+    - categoria: "Conocimiento sobre ESDI"
+      puntaje: 3
+    - categoria: "Capacidad Institucional de Detección"
+      puntaje: 3
+    - categoria: "Conocimiento de Rutas de Atención"
+      puntaje: 3
+    - indicadores_demograficos: 7
+
+  nivel_riesgo: "BAJO"
+  id_riesgo: 2
+  color_riesgo: "#F4D03F"
+
+  recomendaciones: |
+    1. CAPACITACIÓN ESPECÍFICA EN ESDI: Programar formación intensiva para el docente
+       y su equipo directivo sobre identificación, denuncia y atención de casos de ESDI.
+    2. ACTUALIZACIÓN DE PROTOCOLOS: Revisar y actualizar el manual de convivencia
+       incorporando un capítulo específico sobre ESDI con rutas de acción claras.
+    3. ARTICULACIÓN INSTITUCIONAL: Establecer contacto formal con ICBF, Comisaría de Familia
+       y Policía Cibernética para crear una ruta de atención institucional documentada.
+    4. PROGRAMA PREVENTIVO: Diseñar e implementar un programa de prevención de ESDI
+       para estudiantes y familias de la IE con actividades periódicas y medibles.
+    5. REVISIÓN DE INFRAESTRUCTURA DIGITAL: Instalar filtros de contenido en la sala
+       de informática y establecer políticas de uso seguro de la tecnología en la institución.
