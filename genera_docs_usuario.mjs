@@ -161,6 +161,7 @@ const mockupPantalla = (nombre, elementos) => {
   });
   return new Table({
     width: { size: 55, type: WidthType.PERCENTAGE },
+    alignment: AlignmentType.CENTER,
     rows,
     borders: {
       top:    { style: BorderStyle.SINGLE, size: 4, color: C.azul },
@@ -174,12 +175,12 @@ const mockupPantalla = (nombre, elementos) => {
 // Wrapper para centrar el mockup
 const mockupCentrado = (nombre, elementos) => [
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 160, after: 20 },
-    children: [new TextRun({ text: `📱  Pantalla: ${nombre}`, bold: true, size: 18, color: C.azulM, font: "Calibri" })],
+    children: [new TextRun({ text: `Pantalla: ${nombre}`, bold: true, size: 18, color: C.azulM, font: "Calibri" })],
   }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 },
-    children: [new TextRun({ text: "(Representación de la interfaz de la aplicación)", italics: true, size: 16, color: "9CA3AF", font: "Calibri" })],
+    children: [new TextRun({ text: "(Representacion de la interfaz de la aplicacion)", italics: true, size: 16, color: "9CA3AF", font: "Calibri" })],
   }),
-  new Paragraph({ alignment: AlignmentType.CENTER, children: [mockupPantalla(nombre, elementos)] }),
+  mockupPantalla(nombre, elementos),
   sp(160),
 ];
 
