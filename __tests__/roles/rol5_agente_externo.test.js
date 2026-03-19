@@ -1,5 +1,22 @@
 /**
  * rol5_agente_externo.test.js
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PRUEBA DE ROL — Rol 5 (Agente Externo / Comunitario)
+ * Aplicación: ModoSeguro | Fecha: 2026-03-19
+ *
+ * ¿QUÉ SE PRUEBA?
+ *   Este archivo verifica que los Agentes Externos tengan el acceso
+ *   MÁS RESTRINGIDO de todos los roles:
+ *   ✅ Pueden entrar a la app y ver el Dashboard principal
+ *   ✅ SOLO pueden realizar el tipo de entrevista: Agentes Externos (V2)
+ *   ❌ NO pueden ver entrevistas de Funcionario Público
+ *   ❌ NO pueden ver entrevistas de Niños y Niñas
+ *   ❌ NO pueden ver entrevistas de Padres y Cuidadores
+ *   ✅ Su historial solo muestra sus propias entrevistas
+ *   ✅ El sistema bloquea intentos de acceso a pantallas no autorizadas
+ *   ✅ Pueden ingresar sin conexión si tienen sesión guardada
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
  * Suite de pruebas unitarias para el rol 5 (Agente Externo).
  *
  * Cobertura:

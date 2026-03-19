@@ -1,5 +1,21 @@
 /**
  * rol3_4_campo_funcionario.test.js
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PRUEBA DE ROL — Rol 3 (Profesional de Campo) y Rol 4 (Funcionario)
+ * Aplicación: ModoSeguro | Fecha: 2026-03-19
+ *
+ * ¿QUÉ SE PRUEBA?
+ *   Este archivo verifica que los usuarios de campo y funcionarios tengan
+ *   acceso PARCIAL a la aplicación (solo a lo que les corresponde):
+ *   ✅ Pueden entrar a la app y ver el Dashboard principal
+ *   ✅ Pueden realizar entrevistas de: Funcionario Público, Niños y Niñas,
+ *      y Padres y Cuidadores
+ *   ❌ NO pueden ver ni abrir entrevistas de Agentes Externos
+ *   ✅ Su listado de entrevistas solo muestra las que ellos han registrado
+ *   ✅ Pueden acceder a Materiales de consulta
+ *   ✅ El formulario de entrevista valida los datos correctamente
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
  * Suite de pruebas unitarias para los roles 3 (Profesional de campo)
  * y 4 (Funcionario entrevistador).
  *

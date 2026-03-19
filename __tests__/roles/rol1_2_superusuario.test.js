@@ -1,5 +1,20 @@
 /**
  * rol1_2_superusuario.test.js
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PRUEBA DE ROL — Rol 1 (Super Administrador) y Rol 2 (Supervisor)
+ * Aplicación: ModoSeguro | Fecha: 2026-03-19
+ *
+ * ¿QUÉ SE PRUEBA?
+ *   Este archivo verifica que los usuarios con rol de Administrador o Supervisor
+ *   tengan acceso COMPLETO a todas las funciones de la aplicación:
+ *   ✅ Pueden entrar a la app con su usuario y contraseña
+ *   ✅ Ven el Dashboard (pantalla principal) con todos los accesos
+ *   ✅ Pueden abrir los 4 tipos de entrevista (Funcionario, Agente, Niño, Padre)
+ *   ✅ Ven las estadísticas y resumen de todas las entrevistas
+ *   ✅ Pueden navegar a Materiales, Resultados y Rutas
+ *   ✅ Pueden ingresar sin conexión si ya iniciaron sesión antes
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
  * Suite de pruebas unitarias para los roles 1 (Admin) y 2 (Supervisor).
  *
  * Cobertura:
