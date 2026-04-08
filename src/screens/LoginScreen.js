@@ -14,6 +14,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
 import MD5 from "crypto-js/md5";
 import { Ionicons } from "@expo/vector-icons";
 
+import { version } from "../../package.json";
 import { i18n } from "../i18n/i18n";
 
 import ApiBase from "../api/apiBase";
@@ -70,6 +71,19 @@ export default function LoginScreen({ navigation }) {
           i18n.translations.en.interview.terminoTexto = parametro.AsentamientoEn;
         }
       }
+    } else {
+        try {
+          let parametros = buscarParametros();
+
+          i18n.translations.es.create.terminoTexto = parametros.terminos;
+          i18n.translations.en.create.terminoTexto = parametros.terminosEn;
+          i18n.translations.es.routes.description = parametros.atencion;
+          i18n.translations.en.routes.description = parametros.atencionEn;
+          i18n.translations.es.interview.terminoTexto = parametros.asentamiento;
+          i18n.translations.en.interview.terminoTexto = parametros.asentamientoEn;
+        } catch(e) {
+          console.log(e);
+        }
     }
   };
 
@@ -366,6 +380,8 @@ const handleRecibirDiligencias = async (usuario) => {
         style={{ width: Constantes.width85, height: fheight, marginTop: RelativeSize(10) }}
       />
 
+      <Text style={styles.versionText}>v{version}</Text>
+
       <LoadingOverlay visible={loading} />
     </View>
   );
@@ -470,4 +486,11 @@ const styles = StyleSheet.create({
     marginBottom: Constantes.height01,
   },
   btnText: { color: "white", fontFamily: PersonFontSize.regular, fontSize: PersonFontSize.normal, fontWeight: "bold" },
+  versionText: {
+    position: "absolute",
+    bottom: RelativeSize(10),
+    fontFamily: PersonFontSize.regular,
+    fontSize: 10,
+    color: "#999",
+  },
 });

@@ -157,14 +157,14 @@ const styles = StyleSheet.create({
 
     backgroundBottom: {
         width: "100%",
-        position: "absolute",
-        bottom: 0,
-        left: 0,
+        marginTop: RelativeSize(12),
     },
     /* IMAGEN FONDO INFERIOR */
     bottomBackground: {
-        width: Dimensions.get("window").width * 0.85,
+        width: "100%",
         height: RelativeSize(200),
         resizeMode: "stretch",
+        borderBottomLeftRadius: RelativeSize(28),
+        borderBottomRightRadius: RelativeSize(28),
     },
 });
