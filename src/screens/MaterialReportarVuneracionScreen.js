@@ -17,6 +17,12 @@ import { RelativeSize } from "../componentes/funciones";
 const dimensions = Dimensions.get("window");
 import PersonFontSize from "../api/PersonFontSize";
 
+const _tableSource = require("../../assets/images/otras/reportarVulneracionTabla.png");
+const _tableAsset = Image.resolveAssetSource(_tableSource);
+const TABLE_ASPECT_RATIO = _tableAsset && _tableAsset.height > 0
+    ? _tableAsset.width / _tableAsset.height
+    : 0.75;
+
 
 export default function MaterialReportarVulneracionScreen({ navigation, route }) {
     const { user } = route.params || {};
@@ -149,9 +155,10 @@ const styles = StyleSheet.create({
     },
 
     tableImage: {
-        width:  "85%",
-        height:  Dimensions.get("window").width * 1,
-        resizeMode: "stretch",
+        width: "92%",
+        aspectRatio: TABLE_ASPECT_RATIO,
+        resizeMode: "contain",
+        alignSelf: "center",
         marginBottom: RelativeSize(15),
     },
 
