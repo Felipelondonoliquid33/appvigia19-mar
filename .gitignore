@@ -41,3 +41,6 @@ yarn-error.*
 /android
 
 *.zip
+
+# Informes y auditoría — solo uso interno, no subir a GitHub
+informes_y_auditoria/
