@@ -46,3 +46,12 @@ yarn-error.*
 
 # Informes y auditoría — solo uso interno, no subir a GitHub
 informes_y_auditoria/
+INFORME_*.md
+INFORME_*.docx
+CHANGELOG_*.md
+TECHNICAL_*.md
+resultado_*.txt
+genera_docs*.mjs
+genera_informe*.mjs
+**/genera_informe*.mjs
+**/genera_docs*.mjs
