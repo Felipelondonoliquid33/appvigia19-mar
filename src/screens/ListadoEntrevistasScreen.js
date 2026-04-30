@@ -63,7 +63,7 @@ export default function ListadoEntrevistasScreen({ navigation, route }) {
 
         const filtrado = diligenciadas.filter(
             (item) =>
-                item.id.includes(texto)
+                String(item.id).includes(texto)
         );
 
         setData(filtrado.slice(0, PAGE_SIZE));

@@ -7,6 +7,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Image,
+    Alert,
 } from "react-native";
 
 import XLSX from "xlsx-js-style";
@@ -25,11 +26,14 @@ import ApiBase from '../api/apiBase';
 import apiPost from '../api/apiPost';
 import { RelativeSize, getFechaRegistro } from '../componentes/funciones'
 import {actualizarDiligenciar} from "../database/diligenciar";
+import { getEntrevista } from "../utils/entrevistaCache";
 
 // =================== COMPONENTE ===================
 export default function PasoTresScreen({ navigation, route }) {
     const { t } = useLang();
-    const { user, tipo, titulo, entrevista, diligenciar, detalle } = route.params || {};
+    const { user, tipo, titulo, diligenciar, detalle } = route.params || {};
+    // Obtener entrevista desde caché de módulo (no se pasa por params para reducir memoria)
+    const entrevista = getEntrevista();
     const usuario = user;
     const categorias = detalle.Categorias;
     const puntuacionTotal = detalle.Puntaje;
@@ -47,14 +51,14 @@ export default function PasoTresScreen({ navigation, route }) {
     const [discapacidades, setDiscapacidades] = useState([]);
     const [riesgos, setRiesgos] = useState([]);
 
-    // Leyenda completa debajo de la barra
-    const leyendaRiesgos = detalle.Riesgos
-        .map((r) => `${r.Riesgo.Nombre} (${r.Minimo}-${r.Maximo})`)
+    // Leyenda completa debajo de la barra (null-safe)
+    const leyendaRiesgos = (detalle.Riesgos || [])
+        .map((r) => `${r?.Riesgo?.Nombre ?? ''} (${r.Minimo ?? 0}-${r.Maximo ?? 0})`)
         .join(".\n");
 
-    // Texto de recomendaciones
-    const textoRecomendaciones = recomendaciones
-        .map((r) => r.Sugerencia)
+    // Texto de recomendaciones (null-safe)
+    const textoRecomendaciones = (recomendaciones || [])
+        .map((r) => r?.Sugerencia ?? '')
         .join("\n");
 
     const handleCatalog = async () => {
@@ -461,15 +465,68 @@ export default function PasoTresScreen({ navigation, route }) {
             XLSX.utils.book_append_sheet(wb, ws, "Resultados");
             const wbout = XLSX.write(wb, { type: "base64", bookType: "xlsx" });
             const uri = FileSystem.documentDirectory + `reporte_${Date.now()}.xlsx`;
-            await FileSystem.writeAsStringAsync(uri, wbout, {
-                encoding: 'base64'
+            await FileSystem.writeAsStringAsync(uri, wbout, { encoding: 'base64' });
+
+            setLoading(false);
+
+            await new Promise((resolve) => {
+                Alert.alert(
+                    'Reporte generado',
+                    '¿Qué deseas hacer con el reporte?',
+                    [
+                        {
+                            text: 'Compartir',
+                            onPress: async () => {
+                                try { await Sharing.shareAsync(uri); } catch (_) {}
+                                try { await FileSystem.deleteAsync(uri, { idempotent: true }); } catch (_) {}
+                                resolve();
+                            },
+                        },
+                        {
+                            text: 'Guardar en dispositivo',
+                            onPress: async () => {
+                                try {
+                                    const perms = await FileSystem.StorageAccessFramework
+                                        .requestDirectoryPermissionsAsync();
+                                    if (perms.granted) {
+                                        const destUri = await FileSystem.StorageAccessFramework
+                                            .createFileAsync(
+                                                perms.directoryUri,
+                                                `reporte_${Date.now()}.xlsx`,
+                                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                            );
+                                        const content = await FileSystem.readAsStringAsync(
+                                            uri, { encoding: 'base64' }
+                                        );
+                                        await FileSystem.writeAsStringAsync(
+                                            destUri, content, { encoding: 'base64' }
+                                        );
+                                        Alert.alert('', 'Reporte guardado en el dispositivo');
+                                    }
+                                } catch (_) {
+                                    Alert.alert('', 'No se pudo guardar el reporte');
+                                }
+                                try { await FileSystem.deleteAsync(uri, { idempotent: true }); } catch (_) {}
+                                resolve();
+                            },
+                        },
+                        {
+                            text: 'Cancelar',
+                            style: 'cancel',
+                            onPress: async () => {
+                                try { await FileSystem.deleteAsync(uri, { idempotent: true }); } catch (_) {}
+                                resolve();
+                            },
+                        },
+                    ],
+                    { cancelable: false }
+                );
             });
-            await Sharing.shareAsync(uri);
+
         } catch (error) {
             Alert.alert('Advertencia', 'Error generando Excel');
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
 
@@ -485,7 +542,7 @@ export default function PasoTresScreen({ navigation, route }) {
     };
 
     const handleAnterior = async => {
-        navigation.replace('PasoComentario', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+        navigation.replace('PasoComentario', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
     }
 
     const handleExit = async => {

@@ -16,9 +16,7 @@ import FooterNav from "../componentes/FooterNav";
 import { insertarDiligenciar, actualizarDiligenciar, buscarDiligenciaroById } from "../database/diligenciar";
 import { getFechaRegistro, RelativeSize } from '../componentes/funciones';
 import LoadingOverlay from '../componentes/LoadingOverlay';
-import { InactivityProvider } from "../context/InactivityContext";
-import InactivityWrapper from "../componentes/InactivityWrapper";
-import InactivityModal from "../componentes/InactivityModal";
+// Removido InactivityProvider local
 
 import PersonFontSize from "../api/PersonFontSize";
 
@@ -29,7 +27,7 @@ import { useLang } from "../i18n/LanguageProvider";
 
 export default function PasoDosScreen({ navigation, route }) {
   const { t } = useLang();
-  const { user, tipo, titulo, entrevista, diligenciar, detalle } = route.params || {};
+  const { user, tipo, titulo, diligenciar, detalle } = route.params || {};
   const usuario = user;
   const [cambio, setCambio] = useState(false);
   const [progreso, setProgreso] = useState(detalle.Avance);
@@ -65,54 +63,56 @@ export default function PasoDosScreen({ navigation, route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [motivoSalida, setMotivoSalida] = useState("");
   const [viewExit, setViewExit] = useState(null);
-
-
+  // Ref para controlar autosave (evita guardados dobles durante navegación)
+  const autoSaveRef = React.useRef(false);
 
   const seleccionarOpcion = (idOpcion) => {
-    setCambio(true);
-    setRespuestaActual(idOpcion);
+    if (!indicadorActual) return;
+    // Mutar objeto local (es copia profunda, no route.params)
     indicadorActual.Valor = idOpcion;
+    detalle.Indicadores[detalle.IndexIndicador] = indicadorActual;
+    setCambio(true);
+    autoSaveRef.current = true;
+    setRespuestaActual(idOpcion);
   };
 
   const guardarDetalle = () => {
     try {
-    detalle.Indicadores[detalle.IndexIndicador] = indicadorActual;
+      if (!indicadorActual) return;
+      // Usar siempre detalle.IndexIndicador — nunca state stale
+      detalle.Indicadores[detalle.IndexIndicador] = indicadorActual;
 
-    let contestadas = 0;
-    let puntaje = 0;
+      let contestadas = 0;
+      let puntaje = 0;
 
-    for (let i = 0; i < detalle.Indicadores.length; i++) {
-      let indicador = detalle.Indicadores[i];
-      if (indicador.Valor != null) {
-        contestadas++;
-        puntaje += indicador.Valor;
+      for (let i = 0; i < detalle.Indicadores.length; i++) {
+        let indicador = detalle.Indicadores[i];
+        if (indicador && indicador.Valor != null) {
+          contestadas++;
+          puntaje += indicador.Valor;
+        }
       }
-    }
 
-    detalle.Puntaje = puntaje;
-    detalle.Avance = Math.round((contestadas / detalle.TotalIndicadores) * 100);
-    setProgreso(detalle.Avance);
+      detalle.Puntaje = puntaje;
+      detalle.Avance = Math.round((contestadas / (detalle.TotalIndicadores || 1)) * 100);
+      setProgreso(detalle.Avance);
 
-    let reg = buscarDiligenciaroById(diligenciar.id);
-    let bEsta = false;
-    if (reg) {
-      bEsta = true;
-    }
-    diligenciar.json = JSON.stringify(detalle);
+      let reg = buscarDiligenciaroById(diligenciar.id);
+      diligenciar.json = JSON.stringify(detalle);
+      if (reg) {
+        actualizarDiligenciar(diligenciar);
+      } else {
+        insertarDiligenciar(diligenciar);
+      }
+    } catch(e) { }
+  };
 
-    if (bEsta) {
-      actualizarDiligenciar(diligenciar);
-    } else {
-      insertarDiligenciar(diligenciar);
-    }
-    } catch(e) { /* error al guardar */ }
-  }
-
-   useEffect(() => {
-    if (cambio) {
+  useEffect(() => {
+    // autoSaveRef solo es true cuando el usuario seleccionó una opción (no durante navegación)
+    if (cambio && autoSaveRef.current) {
+      autoSaveRef.current = false;
       guardarDetalle();
     }
-
   }, [respuestaActual]);
 
   const handlerMotivo = () => {
@@ -123,6 +123,7 @@ export default function PasoDosScreen({ navigation, route }) {
       diligenciar.fechaMotivo = getFechaRegistro();
 
       let objMotivo = { motivo: diligenciar.motivo, fechaMotivo: diligenciar.fechaMotivo }
+      if (!Array.isArray(detalle.motivos)) detalle.motivos = [];
       detalle.motivos.push(objMotivo);
       diligenciar.json = JSON.stringify(detalle);
       actualizarDiligenciar(diligenciar);
@@ -150,33 +151,33 @@ export default function PasoDosScreen({ navigation, route }) {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
     if (currentIndex > 0) {
       let index = currentIndex - 1;
-      setIndicadorActual(detalle.Indicadores[index]);
+
+      const siguienteIndicador = detalle.Indicadores[index];
+      if (!siguienteIndicador) return;
+
+      // Guardar con índice actual ANTES de actualizar detalle.IndexIndicador
+      guardarDetalle();
+      // Actualizar índice DESPUÉS de guardar
+      detalle.IndexIndicador = index;
+
+      setIndicadorActual(siguienteIndicador);
       setCurrentIndex(index);
-      setRespuestaActual(detalle.Indicadores[index]?.Valor ?? null)
+      setRespuestaActual(siguienteIndicador?.Valor ?? null);
 
       const demograficoRaw = detalle?.Indicadores?.[index]?.Demografico;
-
-      // true SOLO si hay texto real (no null, no "", no "   ", no "null")
       const demograficoTieneTexto =
         demograficoRaw !== null &&
         demograficoRaw !== undefined &&
         String(demograficoRaw).trim() !== "" &&
         !["null", "undefined"].includes(String(demograficoRaw).trim().toLowerCase());
-
-      // true si completa es 1 (sirve si viene 1 o "1")
       const completaEsUno = String(diligenciar?.completa).trim() === "1";
-
-      // Si aún no existe el indicador (carga async), NO deshabilites
       const hayIndicador = !!detalle?.Indicadores?.[index];
 
       setRadioDeshabilitado(hayIndicador ? (demograficoTieneTexto || completaEsUno) : false);
-
       setEsUltimo(index + 1 == detalle.TotalIndicadores);
       setBotonTexto("Siguiente");
-      detalle.IndexIndicador = index;
-      guardarDetalle();
     } else {
-      navigation.replace('PasoUno', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+      navigation.replace('PasoUno', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
     }
   };
 
@@ -184,42 +185,38 @@ export default function PasoDosScreen({ navigation, route }) {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
     if (!esUltimo) {
       let index = currentIndex + 1;
-      setIndicadorActual(detalle.Indicadores[index]);
-      setCurrentIndex(index);
-      setRespuestaActual(detalle.Indicadores[index]?.Valor ?? null)
+
+      const siguienteIndicador = detalle.Indicadores[index];
+      if (!siguienteIndicador) return;
+
+      // Guardar con índice actual ANTES de actualizar detalle.IndexIndicador
+      guardarDetalle();
+      // Actualizar índice DESPUÉS de guardar
       detalle.IndexIndicador = index;
+
+      setIndicadorActual(siguienteIndicador);
+      setCurrentIndex(index);
+      setRespuestaActual(siguienteIndicador?.Valor ?? null);
       setEsUltimo(index + 1 == detalle.TotalIndicadores);
 
-
       const demograficoRaw = detalle?.Indicadores?.[index]?.Demografico;
-
-      // true SOLO si hay texto real (no null, no "", no "   ", no "null")
       const demograficoTieneTexto =
         demograficoRaw !== null &&
         demograficoRaw !== undefined &&
         String(demograficoRaw).trim() !== "" &&
         !["null", "undefined"].includes(String(demograficoRaw).trim().toLowerCase());
-
-      // true si completa es 1 (sirve si viene 1 o "1")
       const completaEsUno = String(diligenciar?.completa).trim() === "1";
-
-      // Si aún no existe el indicador (carga async), NO deshabilites
       const hayIndicador = !!detalle?.Indicadores?.[index];
 
       setRadioDeshabilitado(hayIndicador ? (demograficoTieneTexto || completaEsUno) : false);
-      
-      if (index + 1 == detalle.TotalIndicadores) {
-        setBotonTexto("Siguiente");
-      } else {
-        setBotonTexto("Siguiente");
-      }
-      guardarDetalle();
+      setBotonTexto("Siguiente");
     } else {
-        navigation.replace('PasoComentario', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+      navigation.replace('PasoComentario', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
     }
-  }
+  };
 
-  const finalizarEntrevista = async => {
+  const finalizarEntrevista = async () => {
+    try {
     setLoading(true);
     diligenciar.completa = 1;
     diligenciar.textoCompleta = "Completa";
@@ -244,7 +241,7 @@ export default function PasoDosScreen({ navigation, route }) {
         let riesgo = categoria.Riesgos[j];
         if (pts >= riesgo.Minimo && pts <= riesgo.Maximo) {
           categoria.IdRiesgo = riesgo.Id;
-          categoria.NombreRiesgo = riesgo.Riesgo.Nombre;
+          categoria.NombreRiesgo = riesgo.Riesgo?.Nombre ?? riesgo.Nombre ?? '';
         }
       }
       detalle.Categorias[i] = categoria;
@@ -256,9 +253,9 @@ export default function PasoDosScreen({ navigation, route }) {
     for (let j = 0; j < detalle.Riesgos.length; j++) {
       let riesgo = detalle.Riesgos[j];
       if (puntaje >= riesgo.Minimo && puntaje <= riesgo.Maximo) {
-        detalle.IdRiesgo = riesgo.Riesgo.Id;
-        detalle.NombreRiesgo = riesgo.Riesgo.Nombre;
-        detalle.Sugerencias = riesgo.Sugerencias;
+        detalle.IdRiesgo = riesgo.Riesgo?.Id ?? null;
+        detalle.NombreRiesgo = riesgo.Riesgo?.Nombre ?? '';
+        detalle.Sugerencias = riesgo.Sugerencias ?? [];
       }
     }
 
@@ -268,17 +265,13 @@ export default function PasoDosScreen({ navigation, route }) {
 
     setCambio(false);
 
-    navigation.replace('PasoTres', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+    navigation.replace('PasoTres', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
 
-
+    } catch (e) {
+      console.error('Error en finalizarEntrevista:', e?.message, e?.stack?.substring(0, 300));
+      setLoading(false);
+    }
   }
-
-  const onTimeout = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
-  };
 
   if (!indicadorActual) {
     return (
@@ -300,9 +293,6 @@ export default function PasoDosScreen({ navigation, route }) {
   }
 
   return (
-    <InactivityProvider onTimeout={onTimeout}>
-      <InactivityWrapper>
-
         <View style={styles.container}>
           {/* HEADER */}
           <View style={styles.header}>
@@ -336,6 +326,16 @@ export default function PasoDosScreen({ navigation, route }) {
                 <View style={[styles.progressBarInner, { width: `${progreso}%` }]} />
               </View>
 
+              {/* Guard de seguridad — si indicadorActual es null, mostrar mensaje y botón volver */}
+              {!indicadorActual ? (
+                <View style={{ padding: 20, alignItems: 'center' }}>
+                  <Text style={styles.tituloDos}>{t("stepCommon.errorLoadingQuestion")}</Text>
+                  <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.replace('PasoUno', { user, tipo, titulo, diligenciar, detalle })}>
+                    <Text style={styles.primaryButtonText}>{t("stepCommon.back")}</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <>
               <Text
                 style={[
                   styles.tituloUno,
@@ -416,7 +416,8 @@ export default function PasoDosScreen({ navigation, route }) {
               >
                 <Text style={styles.primaryButtonText}>{botonTexto}</Text>
               </TouchableOpacity>
-
+              </>
+              )}
 
             </View>
           </ScrollView>
@@ -497,11 +498,7 @@ export default function PasoDosScreen({ navigation, route }) {
           <FooterNav navigation={navigation} usuario={usuario} active="PasoDos" validarAccion={validarSalida} />
 
           <LoadingOverlay visible={loading} />
-          <InactivityModal />
         </View>
-      </InactivityWrapper>
-    </InactivityProvider>
-
   );
 }
 

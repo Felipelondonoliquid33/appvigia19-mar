@@ -1,9 +1,9 @@
 import React, { useEffect, useCallback } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { LanguageProvider } from "./src/i18n/LanguageProvider";
-import { View } from 'react-native'; // Añadido View
+import { View, Text } from 'react-native';
 
 // --- IMPORTACIONES DE FUENTES ---
 import * as SplashScreen from 'expo-splash-screen';
@@ -60,11 +60,45 @@ import MaterialesSeis from './src/screens/MaterialesSeisScreen';
 import PasoComentarioScreen from './src/screens/PasoComentarioScreen';
 
 import { createTables } from './src/database/schema';
+import { InactivityProvider } from './src/context/InactivityContext';
+import InactivityWrapper from './src/componentes/InactivityWrapper';
+import InactivityModal from './src/componentes/InactivityModal';
+import { logEvent, startPeriodicFlush } from './src/utils/auditLogger';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mantener la pantalla de carga visible mientras cargan las fuentes
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();
+
+const navigationRef = React.createRef();
+
+// ErrorBoundary: captura errores de render para que Metro los muestre en vez de crashear silenciosamente
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('=== APP CRASH CAPTURADO ===');
+    console.error('Error:', error?.message);
+    console.error('Stack componente:', info?.componentStack?.substring(0, 800));
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#fff' }}>
+          <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Error detectado — ver Metro para detalles:</Text>
+          <Text style={{ color: 'red', fontSize: 13, textAlign: 'center' }}>{this.state.error?.message ?? 'Error desconocido'}</Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   // 1. Cargar las fuentes
@@ -74,7 +108,18 @@ export default function App() {
   });
 
   useEffect(() => {
-    createTables();
+    try {
+      createTables();
+    } catch (e) {
+      console.error('createTables error:', e);
+    }
+
+    // Iniciar flush periódico de eventos de auditoría
+    startPeriodicFlush();
+
+    // Nota: la sincronización de entrevistas completadas se hace en LoginScreen
+    // al iniciar sesión (handleEnviarDiligencias). No hay listener de red aquí
+    // para evitar fetch sin timeout colgados en background.
   }, []);
 
   // 2. Función para ocultar el Splash Screen cuando todo esté listo
@@ -94,7 +139,21 @@ export default function App() {
       {/* 4. Envolvemos en un View para disparar onLayoutRootView */}
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <SafeAreaProvider>
-          <NavigationContainer>
+          {/* RNF-1.4: InactivityProvider global — cubre TODAS las pantallas */}
+          <InactivityProvider onTimeout={async () => {
+            await logEvent('SESSION_TIMEOUT', { motivo: 'inactividad_15min' });
+            await logEvent('LOGOUT', { motivo: 'session_timeout' });
+            await AsyncStorage.removeItem('active_user_id');
+            if (navigationRef.current) {
+              navigationRef.current.dispatch(
+                CommonActions.reset({ index: 0, routes: [{ name: 'Login' }] })
+              );
+            }
+          }}>
+          {/* InactivityWrapper global: resetea el timer de inactividad con CUALQUIER toque en la app */}
+          <ErrorBoundary>
+          <InactivityWrapper>
+          <NavigationContainer ref={navigationRef}>
             <Stack.Navigator initialRouteName="Welcome">
               <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Rutas" component={RutasAtencionScreen} options={{ headerShown: false }} />
@@ -143,6 +202,10 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
           </Stack.Navigator> 
         </NavigationContainer>
+        <InactivityModal />
+        </InactivityWrapper>
+        </ErrorBoundary>
+        </InactivityProvider>
         </SafeAreaProvider>
       </View>
     </LanguageProvider>

@@ -12,6 +12,11 @@ import {
 } from "react-native";
 import { useNetInfo } from "@react-native-community/netinfo";
 import MD5 from "crypto-js/md5";
+import SHA256 from "crypto-js/sha256";
+import Hex from "crypto-js/enc-hex";
+import { setSecureItem } from '../utils/secureStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logEvent } from '../utils/auditLogger';
 import { Ionicons } from "@expo/vector-icons";
 
 import { version } from "../../package.json";
@@ -40,6 +45,22 @@ import { getFechaRegistro, RelativeSize } from "../componentes/funciones";
 import { useLang } from "../i18n/LanguageProvider";
 
 const mheight = (Constantes.width60 * 53.71) / 100;
+
+// ── C-1: helpers de hash seguro (RNF-1.2) ────────────────────────────────────
+/** Genera un salt aleatorio de 16 bytes en hex */
+function generarSalt() {
+  const arr = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) arr[i] = Math.floor(Math.random() * 256);
+  return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+/** Calcula SHA-256(password + salt) y retorna hex de 64 chars */
+function hashSeguro(password, salt) {
+  return SHA256(password + salt).toString(Hex);
+}
+/** Detecta si un hash guardado es MD5 legacy (32 chars hex) */
+function esHashLegacy(hash) {
+  return typeof hash === 'string' && hash.length === 32;
+}
 const fheight = (Constantes.width85 * 17.79) / 100;
 
 export default function LoginScreen({ navigation }) {
@@ -107,6 +128,8 @@ export default function LoginScreen({ navigation }) {
       let lst = getCompletasSinEnviar();
       if (lst && lst.length > 0) {
         const headers = { Authorization: `Bearer ${usuario.token}` };
+        let syncSuccess = 0;
+        let syncFailed = 0;
 
         for (let i = 0; i < lst.length; i++) {
           try {
@@ -123,13 +146,23 @@ export default function LoginScreen({ navigation }) {
                   diligenciar.fechaEnvio = getFechaRegistro();
                   diligenciar.json = JSON.stringify(detalle);
                   actualizarDiligenciar(diligenciar);
-                } catch (e) { }
-              }
-            }
-          } catch (e) { }
+                  syncSuccess++;
+                } catch (e) { syncFailed++; }
+              } else { syncFailed++; }
+            } else { syncFailed++; }
+          } catch (e) { syncFailed++; }
+        }
+
+        if (syncSuccess > 0) {
+          await logEvent('SYNC_SUCCESS', { userId: usuario.id, userName: usuario.userName, motivo: `${syncSuccess} entrevistas sincronizadas` });
+        }
+        if (syncFailed > 0) {
+          await logEvent('SYNC_FAILED', { userId: usuario.id, userName: usuario.userName, motivo: `${syncFailed} entrevistas fallidas` });
         }
       }
-    } catch (e) { }
+    } catch (e) {
+      await logEvent('SYNC_FAILED', { userId: usuario?.id, userName: usuario?.userName, motivo: 'error_general_sync' });
+    }
   };
 
 const handleRecibirDiligencias = async (usuario) => {
@@ -180,8 +213,8 @@ const handleRecibirDiligencias = async (usuario) => {
 
       if (netInfo.isConnected) {
         const body = JSON.stringify({
-          UserName: encodeURI(username.toLowerCase()),
-          PassWord: encodeURI(password),
+          UserName: username.toLowerCase().trim(),
+          PassWord: password,
         });
         const result = await apiPost(ApiBase.apiLogin, body);
 
@@ -190,6 +223,9 @@ const handleRecibirDiligencias = async (usuario) => {
             const reg = result.data;
             const usuarios = buscarUsuarioById(reg.id);
             try {
+              // C-1 — RNF-1.2: almacenar SHA-256(password+salt) en lugar de MD5
+              const salt = generarSalt();
+              const hashPwd = hashSeguro(password, salt);
               if (usuarios == null) {
                 insertarUsuario(
                   reg.id,
@@ -200,9 +236,10 @@ const handleRecibirDiligencias = async (usuario) => {
                   reg.rolId,
                   reg.rolNombre,
                   reg.rolSuperUsuario,
-                  MD5(password).toString(),
+                  hashPwd,
                   reg.token,
-                  reg.terminos
+                  reg.terminos,
+                  salt
                 );
               } else {
                 actualizarUsuario(
@@ -214,15 +251,22 @@ const handleRecibirDiligencias = async (usuario) => {
                   reg.rolId,
                   reg.rolNombre,
                   reg.rolSuperUsuario,
-                  MD5(password).toString(),
+                  hashPwd,
                   reg.token,
-                  reg.terminos
+                  reg.terminos,
+                  salt
                 );
               }
+              // C-3 — RNF-1.4: guardar JWT en Secure Storage (Keychain/Keystore)
+              // ya no depende solo de SQLite plano
+              await setSecureItem('jwt_token', reg.token);
+              // guardar id activo para sincronización reactiva (C-6)
+              await AsyncStorage.setItem('active_user_id', String(reg.id));
+              await logEvent('LOGIN_SUCCESS', { userId: reg.id, userName: reg.userName });
             } catch (ex) { }
 
-            await handleEnviarDiligencias(usuarios);
-            handleRecibirDiligencias(usuarios);
+            await handleEnviarDiligencias(reg);
+            handleRecibirDiligencias(reg);
 
             setLoading(false);
             if (reg.terminos) {
@@ -232,10 +276,12 @@ const handleRecibirDiligencias = async (usuario) => {
             }
           } else {
             setLoading(false);
+            await logEvent('LOGIN_FAILED', { userName: username, motivo: 'credenciales_invalidas_servidor' });
             Alert.alert(t("login.warn"), `${t("login.authError")}: ${result.data.mensaje}`);
           }
         } else {
           setLoading(false);
+          await logEvent('LOGIN_FAILED', { userName: username, motivo: 'error_servidor' });
           Alert.alert(t("login.warn"), t("login.serverError"));
         }
       } else {
@@ -244,19 +290,31 @@ const handleRecibirDiligencias = async (usuario) => {
 
         if (usuario == null) {
           setLoading(false);
+          await logEvent('LOGIN_FAILED', { userName: username, motivo: 'usuario_no_encontrado_offline' });
           Alert.alert(t("login.warn"), t("login.offlineNoUser"));
         } else {
-          const clave = MD5(password).toString();
-          if (clave == usuario.password) {
+          // C-1 — RNF-1.2: detectar hash legacy MD5 y forzar conexión para migrar
+          if (esHashLegacy(usuario.password)) {
             setLoading(false);
-            if (usuario.terminos) {
-              navigation.replace("Home", { user: usuario });
-            } else {
-              Alert.alert(t("login.warn"), t("login.offlineNoTerms"));
-            }
+            await logEvent('LOGIN_FAILED', { userName: username, motivo: 'hash_legacy_md5_requiere_migracion' });
+            Alert.alert(
+              t("login.warn"),
+              t("login.legacyHashMigration") || 'Por seguridad, conéctate a internet una vez para actualizar tu cuenta.'
+            );
           } else {
-            setLoading(false);
-            Alert.alert(t("login.warn"), t("login.authError"));
+            const hashInput = hashSeguro(password, usuario.password_salt || '');
+            if (hashInput === usuario.password) {
+              setLoading(false);
+              if (usuario.terminos) {
+                navigation.replace("Home", { user: usuario });
+              } else {
+                Alert.alert(t("login.warn"), t("login.offlineNoTerms"));
+              }
+            } else {
+              setLoading(false);
+              await logEvent('LOGIN_FAILED', { userName: username, motivo: 'credenciales_invalidas_offline' });
+              Alert.alert(t("login.warn"), t("login.authError"));
+            }
           }
         }
       }

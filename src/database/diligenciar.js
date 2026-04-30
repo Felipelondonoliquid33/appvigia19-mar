@@ -100,7 +100,7 @@ export function getDiligenciarByUser(idUser) {
     const db = getDBConnection();
     try {
 
-        const result = db.getAllSync('SELECT * FROM diligenciar where idUsuario = ' + idUser + ';');
+        const result = db.getAllSync('SELECT * FROM diligenciar WHERE idUsuario = ?', [idUser]);
         if (result) {
             return result;
         } else {

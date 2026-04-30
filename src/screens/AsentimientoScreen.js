@@ -12,6 +12,7 @@ import {
 import { buscarCatalogo } from '../database/catalogos';
 import { getFechaFormato, getFechaRegistro, RelativeSize } from '../componentes/funciones'
 import { buscarDiligenciaroById } from "../database/diligenciar";
+import { setEntrevista } from "../utils/entrevistaCache";
 
 import PersonFontSize from "../api/PersonFontSize";
 
@@ -39,6 +40,9 @@ export default function AsentimientoScreen({ navigation, route }) {
       }
     }
     if (!entrevista) return; // catalog not ready, do nothing
+
+    // Guardar en caché de módulo para no pasar objeto grande por params de navegación
+    setEntrevista(entrevista);
 
     let id = usuario.id.toString() + getFechaFormato();
     if (!idReg) {
@@ -133,15 +137,17 @@ export default function AsentimientoScreen({ navigation, route }) {
 
       detalle.TotalIndicadores = detalle.Indicadores.length;
 
-      navigation.replace('PasoUno', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+      navigation.replace('PasoUno', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
     } else {
       let diligenciar = buscarDiligenciaroById(idReg);
       let detalle = JSON.parse(diligenciar.json);
+      // Garantizar que motivos siempre sea un array (compatibilidad con registros antiguos)
+      if (!Array.isArray(detalle.motivos)) detalle.motivos = [];
 
       if(diligenciar.completa === 0) {
-        navigation.replace('PasoUno', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+        navigation.replace('PasoUno', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
       } else {
-        navigation.replace('PasoTres', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+        navigation.replace('PasoTres', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
       }
     }
   }

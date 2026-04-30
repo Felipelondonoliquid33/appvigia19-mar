@@ -16,7 +16,7 @@
       "supportsTablet": true
     },
     "android": {
-      "allowBackup": true,
+      "allowBackup": false,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"

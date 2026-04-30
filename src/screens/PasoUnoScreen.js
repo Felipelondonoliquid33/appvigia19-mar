@@ -13,7 +13,6 @@ import {
   InteractionManager,
 } from "react-native";
 
-import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import GenericPicker from "../componentes/GenericPicker";
@@ -27,12 +26,10 @@ import { validarMayor18, validarMayorToYear, getFechaNacimiento, getFechaRegistr
 import { buscarCatalogo } from '../database/catalogos';
 import { insertarDiligenciar, actualizarDiligenciar, buscarDiligenciaroById } from "../database/diligenciar";
 
-import { InactivityProvider } from "../context/InactivityContext";
-import InactivityWrapper from "../componentes/InactivityWrapper";
-import InactivityModal from "../componentes/InactivityModal";
+// Removido InactivityProvider local
 
 export default function PasoUnoScreen({ navigation, route }) {
-  const { user, tipo, titulo, entrevista, diligenciar, detalle } = route.params || {};
+  const { user, tipo, titulo, diligenciar, detalle } = route.params || {};
   const usuario = user;
   const { t } = useLang();
   const [cambio, setCambio] = useState(false);
@@ -67,6 +64,10 @@ export default function PasoUnoScreen({ navigation, route }) {
   ]), [t]);
 
   const [generos, setGeneros] = useState([]);
+  const [openGenero, setOpenGenero] = useState(false);
+  const [valueGenero, setValueGenero] = useState(detalle.IdGenero || formData.genero);
+  const [itemsGenero, setItemsGenero] = useState([]);
+
   const [openEtnia, setOpenEtnia] = useState(false);
   const [valueEtnia, setValueEtnia] = useState(detalle.IdEtnia);
   const [itemsEtnia, setItemsEtnia] = useState([]);
@@ -108,6 +109,7 @@ export default function PasoUnoScreen({ navigation, route }) {
       diligenciar.fechaMotivo = getFechaRegistro();
 
       let objMotivo = { motivo: diligenciar.motivo, fechaMotivo: diligenciar.fechaMotivo }
+      if (!Array.isArray(detalle.motivos)) detalle.motivos = [];
       detalle.motivos.push(objMotivo);
       diligenciar.json = JSON.stringify(detalle);
       actualizarDiligenciar(diligenciar);
@@ -124,6 +126,12 @@ export default function PasoUnoScreen({ navigation, route }) {
 
     let lstGeneros = JSON.parse(catalogos.generos) || [];
     setGeneros(lstGeneros);
+    setItemsGenero(
+      (Array.isArray(lstGeneros) ? lstGeneros : []).map(g => ({
+        label: g?.Nombre ?? "",
+        value: g?.Id
+      })).filter(item => item.value != null)
+    );
 
     let lstEtnias = JSON.parse(catalogos.etnias) || [];
     setItemsEtnia([
@@ -333,7 +341,7 @@ export default function PasoUnoScreen({ navigation, route }) {
         insertarDiligenciar(diligenciar);
       }
 
-      navigation.replace('PasoDos', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+      navigation.replace('PasoDos', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
 
 
     }
@@ -431,16 +439,7 @@ export default function PasoUnoScreen({ navigation, route }) {
     }
   };
 
-  const onTimeout = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
-  };
-
   return (
-    <InactivityProvider onTimeout={onTimeout}>
-      <InactivityWrapper>
         <View style={styles.container}>
           {/* Header con iconos */}
           <View style={styles.header}>
@@ -493,22 +492,20 @@ export default function PasoUnoScreen({ navigation, route }) {
 
               {/* GENERO */}
               <Text style={styles.label}>{t("stepOne.gender")}</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  enabled={!deshabilitados}
-                  selectedValue={formData.genero}
-                  onValueChange={(v) => updateForm("genero", v, true)}
-                >
-                  <Picker.Item label={t("stepOne.select")} value={null} />
-                  {generos.map((g) => (
-                    <Picker.Item
-                      key={g.Id}
-                      label={g.Nombre}
-                      value={g.Id}
-                    />
-                  ))}
-                </Picker>
-              </View>
+              <GenericPicker
+                visible={openGenero}
+                items={itemsGenero}
+                value={valueGenero}
+                onSelect={(val) => {
+                  setValueGenero(val);
+                  updateForm("genero", val, true);
+                  setOpenGenero(false);
+                }}
+                onClose={setOpenGenero}
+                title={t("stepOne.gender")}
+                disabled={deshabilitados}
+                placeholder={t("stepOne.select")}
+              />
 
               {/* RADIO: Victima conflicto */}
               <Text style={styles.label}>{t("stepOne.victimConflict")}</Text>
@@ -910,10 +907,7 @@ export default function PasoUnoScreen({ navigation, route }) {
 
           {/* ✅ Footer reusable */}
           <FooterNav navigation={navigation} usuario={usuario} active="PasoUno" validarAccion={validarSalida} />
-          <InactivityModal />
         </View>
-      </InactivityWrapper>
-    </InactivityProvider>
   );
 }
 

@@ -16,9 +16,7 @@ import FooterNav from "../componentes/FooterNav";
 import { insertarDiligenciar, actualizarDiligenciar, buscarDiligenciaroById } from "../database/diligenciar";
 import { getFechaRegistro, RelativeSize } from '../componentes/funciones';
 import LoadingOverlay from '../componentes/LoadingOverlay';
-import { InactivityProvider } from "../context/InactivityContext";
-import InactivityWrapper from "../componentes/InactivityWrapper";
-import InactivityModal from "../componentes/InactivityModal";
+// Removido InactivityProvider local
 
 import PersonFontSize from "../api/PersonFontSize";
 
@@ -29,7 +27,7 @@ import { useLang } from "../i18n/LanguageProvider";
 
 export default function PasoComentarioScreen({ navigation, route }) {
   const { t } = useLang();
-  const { user, tipo, titulo, entrevista, diligenciar, detalle } = route.params || {};
+  const { user, tipo, titulo, diligenciar, detalle } = route.params || {};
   const usuario = user;
   const [cambio, setCambio] = useState(false);
   const [progreso, setProgreso] = useState(detalle.Avance);
@@ -54,18 +52,21 @@ export default function PasoComentarioScreen({ navigation, route }) {
 
 
   const seleccionarOpcion = (idOpcion) => {
+    if (!indicadorActual) return;
+    // Mutar objeto local (es copia profunda, no route.params)
+    indicadorActual.Valor = idOpcion;
     setCambio(true);
     setRespuestaActual(idOpcion);
-    indicadorActual.Valor = idOpcion;
   };
 
   const guardarDetalle = () => {
     try {
-    let reg = buscarDiligenciaroById(diligenciar.id);
-    let bEsta = false;
-    if (reg) {
-      bEsta = true;
+    // Guardar usando detalle.IndexIndicador (no stale state)
+    if (indicadorActual) {
+      detalle.Indicadores[detalle.IndexIndicador] = indicadorActual;
     }
+    let reg = buscarDiligenciaroById(diligenciar.id);
+    let bEsta = reg != null;
     diligenciar.json = JSON.stringify(detalle);
 
     if (bEsta) {
@@ -98,6 +99,7 @@ export default function PasoComentarioScreen({ navigation, route }) {
       diligenciar.fechaMotivo = getFechaRegistro();
 
       let objMotivo = { motivo: diligenciar.motivo, fechaMotivo: diligenciar.fechaMotivo }
+      if (!Array.isArray(detalle.motivos)) detalle.motivos = [];
       detalle.motivos.push(objMotivo);
       diligenciar.json = JSON.stringify(detalle);
       actualizarDiligenciar(diligenciar);
@@ -123,18 +125,18 @@ export default function PasoComentarioScreen({ navigation, route }) {
 
   const handleAnterior = async () => {
         detalle.IndexIndicador = detalle.TotalIndicadores - 1;
-        navigation.replace('PasoDos', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+        navigation.replace('PasoDos', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
   };
 
   const handleSiguiente = async () => {
       if (diligenciar.completa === 0) {
         setConfirmVisible(true);
       } else {
-        navigation.replace('PasoTres', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+        navigation.replace('PasoTres', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
       }
   }
 
-  const finalizarEntrevista = async => {
+  const finalizarEntrevista = async () => {
     setLoading(true);
     detalle.Observaciones = observaciones;
     diligenciar.json = JSON.stringify(detalle);
@@ -161,7 +163,7 @@ export default function PasoComentarioScreen({ navigation, route }) {
         let riesgo = categoria.Riesgos[j];
         if (pts >= riesgo.Minimo && pts <= riesgo.Maximo) {
           categoria.IdRiesgo = riesgo.Id;
-          categoria.NombreRiesgo = riesgo.Riesgo.Nombre;
+          categoria.NombreRiesgo = riesgo.Riesgo?.Nombre ?? riesgo.Nombre ?? '';
         }
       }
       detalle.Categorias[i] = categoria;
@@ -173,9 +175,9 @@ export default function PasoComentarioScreen({ navigation, route }) {
     for (let j = 0; j < detalle.Riesgos.length; j++) {
       let riesgo = detalle.Riesgos[j];
       if (puntaje >= riesgo.Minimo && puntaje <= riesgo.Maximo) {
-        detalle.IdRiesgo = riesgo.Riesgo.Id;
-        detalle.NombreRiesgo = riesgo.Riesgo.Nombre;
-        detalle.Sugerencias = riesgo.Sugerencias;
+        detalle.IdRiesgo = riesgo.Riesgo?.Id ?? null;
+        detalle.NombreRiesgo = riesgo.Riesgo?.Nombre ?? '';
+        detalle.Sugerencias = riesgo.Sugerencias ?? [];
       }
     }
 
@@ -185,23 +187,12 @@ export default function PasoComentarioScreen({ navigation, route }) {
 
     setCambio(false);
 
-    navigation.replace('PasoTres', { user: user, tipo: tipo, titulo: titulo, entrevista: entrevista, diligenciar: diligenciar, detalle: detalle });
+    navigation.replace('PasoTres', { user: user, tipo: tipo, titulo: titulo, diligenciar: diligenciar, detalle: detalle });
 
 
   }
 
-  const onTimeout = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
-  };
-
-
   return (
-    <InactivityProvider onTimeout={onTimeout}>
-      <InactivityWrapper>
-
         <View style={styles.container}>
           {/* HEADER */}
           <View style={styles.header}>
@@ -346,11 +337,7 @@ export default function PasoComentarioScreen({ navigation, route }) {
           <FooterNav navigation={navigation} usuario={usuario} active="PasoDos" validarAccion={validarSalida} />
 
           <LoadingOverlay visible={loading} />
-          <InactivityModal />
         </View>
-      </InactivityWrapper>
-    </InactivityProvider>
-
   );
 }
 

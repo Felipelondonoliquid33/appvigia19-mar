@@ -15,8 +15,8 @@ import { Checkbox } from "react-native-paper";
 
 import { useNetInfo } from '@react-native-community/netinfo';
 import { Ionicons } from "@expo/vector-icons";
-import { Picker } from '@react-native-picker/picker';
 import ColorShema from "./style/ColorSchema";
+import GenericPicker from '../componentes/GenericPicker';
 import Constantes from "../api/Constantes";
 import LoadingOverlay from '../componentes/LoadingOverlay';
 import ApiBase from '../api/apiBase';
@@ -44,6 +44,7 @@ export default function CrearScreen({ navigation, route }) {
   const netInfo = useNetInfo();
   const [modalVisible, setModalVisible] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [showRolPicker, setShowRolPicker] = useState(false);
 
   const titulo = t("create.title");
   const terminosTexto = t("create.terminoTexto");
@@ -118,7 +119,7 @@ export default function CrearScreen({ navigation, route }) {
                       Alert.alert(t("create.warn"), result.data.mensaje);
                     }
                   } else {
-                    Alert.alert(t("create.warn"), t("create.errors.server"));
+                    Alert.alert(t("create.warn"), result.error || t("create.errors.server"));
                   }
                 } else {
                   Alert.alert(t("create.warn"), t("create.errors.passwordMismatch"));
@@ -211,19 +212,18 @@ export default function CrearScreen({ navigation, route }) {
           style={styles.input}
         />
 
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={rol}
-            onValueChange={(itemValue) => setRol(itemValue)}
-            style={styles.pickerStyle}
-            dropdownIconColor={ColorShema.AZULOSCURO}
-            itemStyle={{ color: ColorShema.AZULOSCURO }}
-          >
-            <Picker.Item style={styles.pickerItem} label={t("create.selectRole")} value="" />
-            <Picker.Item style={styles.pickerItem} label={t("create.roleExternal")} value="4" />
-            <Picker.Item style={styles.pickerItem} label={t("create.roleAgent")} value="5" />
-          </Picker>
-        </View>
+        <GenericPicker
+          visible={showRolPicker}
+          items={[
+            { label: t("create.roleExternal"), value: "4" },
+            { label: t("create.roleAgent"), value: "5" },
+          ]}
+          value={rol}
+          onSelect={setRol}
+          onClose={setShowRolPicker}
+          placeholder={t("create.selectRole")}
+          title={t("create.selectRole")}
+        />
 
         <View style={styles.inputIcon}>
           <TextInput

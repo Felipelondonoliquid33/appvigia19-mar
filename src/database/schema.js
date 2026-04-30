@@ -82,5 +82,37 @@ export function createTables() {
             preview TEXT,
             imagen TEXT
         );
-    `);    
-}    
+    `);
+
+    // ── Control de versión y migraciones (RNF — mantenibilidad) ─────────────
+    db.execSync(`
+        CREATE TABLE IF NOT EXISTS db_version (
+            version INTEGER PRIMARY KEY
+        );
+    `);
+
+    runMigrations(db);
+}
+
+/**
+ * Ejecuta migraciones de esquema de forma incremental y segura.
+ * Cada versión aplica solo el delta necesario.
+ */
+function runMigrations(db) {
+    const row = db.getFirstSync('SELECT MAX(version) as v FROM db_version');
+    const currentVersion = (row && row.v != null) ? row.v : 0;
+
+    // ── v1: agregar columna password_salt a usuarios (necesaria para C-1 SHA-256) ─
+    if (currentVersion < 1) {
+        try {
+            db.execSync(`ALTER TABLE usuarios ADD COLUMN password_salt TEXT;`);
+        } catch (_) {
+            // La columna ya existe (app reinstalada con BD nueva) — ignorar
+        }
+        db.runSync(`INSERT OR REPLACE INTO db_version (version) VALUES (1);`);
+    }
+
+    // ── v2: reservada para futura remoción del campo token (tras C-3 consolidado) ─
+    // if (currentVersion < 2) { ... }
+}
+

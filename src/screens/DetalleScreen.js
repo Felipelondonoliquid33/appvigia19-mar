@@ -22,7 +22,7 @@ export default function DetalleScreen({ navigation, route }) {
     const { user, detalle } = route.params || {};
     const usuario = user;
 
-    const handleAnterior = async => {
+    const handleAnterior = async () => {
         navigation.goBack();
     }
 

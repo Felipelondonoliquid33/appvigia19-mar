@@ -15,11 +15,11 @@ import { getDBConnection } from './database';
  * @param {string} token - Token de sesión entregado por el servidor.
  * @param {number} terminos - 1 si el usuario aceptó los términos, 0 si no.
  */
-export function insertarUsuario(id, username, nombre, email, telefono, rolId,rolNombre,rolSuperUsuario,password, token, terminos) {
+export function insertarUsuario(id, username, nombre, email, telefono, rolId,rolNombre,rolSuperUsuario,password, token, terminos, passwordSalt) {
     const db = getDBConnection();
     try {
-        db.runSync(`INSERT INTO usuarios (id,username,nombre,email,telefono,rolId,rolNombre,rolSuperUsuario,password,token, terminos) values (?,?,?,?,?,?,?,?,?,?,?);`,
-            [id, username, nombre, email, telefono, rolId,rolNombre,rolSuperUsuario,password, token, terminos]
+        db.runSync(`INSERT INTO usuarios (id,username,nombre,email,telefono,rolId,rolNombre,rolSuperUsuario,password,token,terminos,password_salt) values (?,?,?,?,?,?,?,?,?,?,?,?);`,
+            [id, username, nombre, email, telefono, rolId,rolNombre,rolSuperUsuario,password, token, terminos, passwordSalt || null]
         );
     } catch (error) {
         // Error silenciado — el fallo se propaga hacia el llamador
@@ -41,11 +41,11 @@ export function insertarUsuario(id, username, nombre, email, telefono, rolId,rol
  * @param {string} token - Token de sesión entregado por el servidor.
  * @param {number} terminos - 1 si el usuario aceptó los términos, 0 si no.
  */
-export function actualizarUsuario(id, username, nombre, email, telefono, rolId,rolNombre,rolSuperUsuario,password,token,terminos) {
+export function actualizarUsuario(id, username, nombre, email, telefono, rolId,rolNombre,rolSuperUsuario,password,token,terminos, passwordSalt) {
     const db = getDBConnection();
     try {
-        db.runSync(`update usuarios set username=?, nombre=?, email=?, telefono=?, rolId=?, rolNombre=?,rolSuperUsuario=?,password=?, token=?, terminos=? where id=?;`,
-            [username, nombre, email, telefono, rolId,rolNombre,rolSuperUsuario,password, token, terminos,id]
+        db.runSync(`update usuarios set username=?, nombre=?, email=?, telefono=?, rolId=?, rolNombre=?,rolSuperUsuario=?,password=?, token=?, terminos=?, password_salt=? where id=?;`,
+            [username, nombre, email, telefono, rolId,rolNombre,rolSuperUsuario,password, token, terminos, passwordSalt || null, id]
         );
     } catch (error) {
         // Error silenciado — el fallo se propaga hacia el llamador

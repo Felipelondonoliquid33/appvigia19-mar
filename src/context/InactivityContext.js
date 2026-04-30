@@ -2,8 +2,9 @@ import React, { createContext, useContext, useEffect, useRef, useState } from "r
 
 const InactivityContext = createContext(null);
 
-const INACTIVITY_TIME = 10 * 60 * 1000; // 9 min
-const WARNING_TIME = 1 * 60 * 1000;    // 1 min
+// RNF-1.4: timeout global de inactividad — 14 min espera + 1 min aviso = 15 min total
+const INACTIVITY_TIME = 14 * 60 * 1000; // 14 min
+const WARNING_TIME    =  1 * 60 * 1000; //  1 min → cierre a los 15 min exactos
 
 export const InactivityProvider = ({ children, onTimeout }) => {
   const inactivityRef = useRef(null);
