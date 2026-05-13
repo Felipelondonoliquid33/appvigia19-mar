@@ -55,3 +55,8 @@ genera_docs*.mjs
 genera_informe*.mjs
 **/genera_informe*.mjs
 **/genera_docs*.mjs
+
+# Pruebas, historias de usuario y scripts internos — no requeridos por ICBF
+__tests__/
+user_stories/
+auto_build.js
