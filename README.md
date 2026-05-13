@@ -270,7 +270,10 @@ Si los catálogos se descargan correctamente, la conexión está funcionando.
 
 ## 🧪 Tests E2E automatizados (Maestro)
 
-El repositorio incluye flujos de prueba automatizados de UI con **Maestro CLI**.
+El repositorio incluye flujos de prueba automatizados de UI con **Maestro CLI**, listos para que el equipo del ICBF los ejecute en su propio entorno.
+
+> **¿Por qué Maestro y no Jest?**  
+> La suite de pruebas unitarias Jest (108 tests de código interno) es de uso exclusivo del equipo de desarrollo y **no se incluye en este repositorio**. Lo que encontrará aquí son pruebas de UI de extremo a extremo (E2E) con Maestro — estas prueban la aplicación completa tal como la usa un funcionario real, simulando toques, navegación y flujos completos en un dispositivo o emulador. Son las pruebas relevantes para validar el correcto funcionamiento en el entorno del ICBF.
 
 ### Instalar Maestro
 
@@ -372,15 +375,26 @@ vigiatpapp/
 
 ## 👥 Roles y permisos
 
-La app gestiona 5 roles de usuario con acceso diferenciado:
+La app gestiona **5 rolIds** provenientes del backend, agrupados en **3 niveles funcionales de acceso**:
 
-| rolId | Nombre del rol | Capacidades principales |
+| rolId | Nombre del rol | Grupo funcional | Entrevistas accesibles |
+|---|---|---|---|
+| 1 | **Super Administrador** | 🔴 Superusuario | **Todas** (acceso irrestricto) |
+| 2 | **Administrador** | 🔴 Superusuario | **Todas** (acceso irrestricto) |
+| 3 | **Funcionario ICBF** | 🟡 Entrevistador ICBF | Funcionario, Niños/NNA, Madres/Familia |
+| 4 | **Coordinador / Contratista ICBF** | 🟡 Entrevistador ICBF | Funcionario, Niños/NNA, Madres/Familia |
+| 5 | **Agente Externo** | 🟢 Agente | Solo entrevista de Agente Externo |
+
+> **Lógica de acceso en código:** `rolId 1` y `2` son superusuarios — siempre tienen acceso a todas las secciones independientemente de los filtros por rol. Los `rolId 3` y `4` comparten exactamente el mismo conjunto de pantallas y formularios. El `rolId 5` tiene acceso restringido únicamente a la entrevista de agente externo.
+
+### Tipos de entrevista disponibles
+
+| Tipo | Descripción | Roles con acceso |
 |---|---|---|
-| 1 | **Super Administrador** | Gestión completa de usuarios, todos los reportes |
-| 2 | **Supervisor** | Supervisión de campo, reportes consolidados |
-| 3 | **Funcionario ICBF** | Entrevistas de protección, valoración de riesgo |
-| 4 | **Funcionario de campo** | Entrevistas en campo, modo offline |
-| 5 | **Agente Externo** | Entrevistas limitadas, sin gestión de usuarios |
+| 1 | Entrevista Funcionario (Protección) | 1, 2, 3, 4 |
+| 2 | Entrevista Agente Externo | 1, 2, 5 |
+| 3 | Entrevista Niñas, Niños y Adolescentes | 1, 2, 3, 4 |
+| 4 | Entrevista Madres / Familia | 1, 2, 3, 4 |
 
 ---
 
