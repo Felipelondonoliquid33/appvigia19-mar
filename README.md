@@ -313,9 +313,9 @@ maestro test .maestro/flujo_principal.yaml
 
 | Rol | Variable usuario | Variable contraseña |
 |---|---|---|
-| Administrador (rolId 1-2) | `ADMIN_USER` | `ADMIN_PASS` |
-| Funcionario ICBF (rolId 3-4) | `ICBF_USER` | `ICBF_PASS` |
-| Agente Externo (rolId 5) | `AGENTE_USER` | `AGENTE_PASS` |
+| Administrador (Rol 1-2) | `ADMIN_USER` | `ADMIN_PASS` |
+| Funcionario ICBF (Rol 3-4) | `ICBF_USER` | `ICBF_PASS` |
+| Agente Externo (Rol 5) | `AGENTE_USER` | `AGENTE_PASS` |
 
 ---
 
@@ -375,9 +375,9 @@ vigiatpapp/
 
 ## 👥 Roles y permisos
 
-La app gestiona **5 rolIds** provenientes del backend, agrupados en **3 niveles funcionales de acceso**:
+La app gestiona **5 roles** provenientes del backend, agrupados en **3 niveles funcionales de acceso**:
 
-| rolId | Nombre del rol | Grupo funcional | Entrevistas accesibles |
+| Rol | Nombre del rol | Grupo funcional | Entrevistas accesibles |
 |---|---|---|---|
 | 1 | **Super Administrador** | 🔴 Superusuario | **Todas** (acceso irrestricto) |
 | 2 | **Administrador** | 🔴 Superusuario | **Todas** (acceso irrestricto) |
@@ -385,7 +385,7 @@ La app gestiona **5 rolIds** provenientes del backend, agrupados en **3 niveles 
 | 4 | **Coordinador / Contratista ICBF** | 🟡 Entrevistador ICBF | Funcionario, Niños/NNA, Madres/Familia |
 | 5 | **Agente Externo** | 🟢 Agente | Solo entrevista de Agente Externo |
 
-> **Lógica de acceso en código:** `rolId 1` y `2` son superusuarios — siempre tienen acceso a todas las secciones independientemente de los filtros por rol. Los `rolId 3` y `4` comparten exactamente el mismo conjunto de pantallas y formularios. El `rolId 5` tiene acceso restringido únicamente a la entrevista de agente externo.
+> **Lógica de acceso en código:** `Rol 1` y `2` son superusuarios — siempre tienen acceso a todas las secciones independientemente de los filtros por rol. Los `Rol 3` y `4` comparten exactamente el mismo conjunto de pantallas y formularios. El `Rol 5` tiene acceso restringido únicamente a la entrevista de agente externo.
 
 ### Tipos de entrevista disponibles
 
